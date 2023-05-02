@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Oleg Eremkin](https://up.htmlacademy.ru/ecmascript/20/user/1544057).
-* Наставник: [Дмитрий (sench) Железцов](https://htmlacademy.ru/profile/sench).
+* Наставник: `Неизвестно`.
 
 ---
 
