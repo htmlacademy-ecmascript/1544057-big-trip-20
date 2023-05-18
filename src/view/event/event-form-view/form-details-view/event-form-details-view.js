@@ -1,4 +1,4 @@
-import { createElement } from '../../../render.js';
+import { createElement } from '../../../../render.js';
 
 const createEventFormDetailsTemplate = () => '<section class="event__details"></section>';
 
