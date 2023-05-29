@@ -1,6 +1,6 @@
 import { createElement } from '../../../../render.js';
 
-const createHeaderTypeTemplate = (eventType) => `
+const createHeaderTypesTemplate = (eventType) => `
   <div class="event__type-wrapper" >
     <label class="event__type  event__type-btn" for="event-type-toggle-1">
       <span class="visually-hidden">Choose event type</span>
@@ -60,13 +60,13 @@ const createHeaderTypeTemplate = (eventType) => `
     </div>
 </div>`;
 
-export default class HeaderTypeView {
+export default class HeaderTypesView {
   constructor(eventType) {
     this.eventType = eventType;
   }
 
   getTemplate() {
-    return createHeaderTypeTemplate(this.eventType);
+    return createHeaderTypesTemplate(this.eventType);
   }
 
   getElement() {

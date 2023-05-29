@@ -45,7 +45,7 @@ const createFormHeaderTemplate = (headerButton, { eventType, eventCityName, even
   ${headerButton}
 </header>`;
 
-export default class EventFormHeaderView {
+export default class HeaderView {
   constructor({ formType, eventInfo, destinations }) {
     this.formType = formType;
     this.eventInfo = eventInfo;

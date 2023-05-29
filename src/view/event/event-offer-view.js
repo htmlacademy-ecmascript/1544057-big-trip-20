@@ -6,8 +6,7 @@ const createEventOfferTemplate = ({ price, title }) => `<li class="event__offer"
       <span class="event__offer-price">${price}</span>
     </li>`;
 
-
-export default class EventOfferView {
+export default class EventOffersView {
   constructor(eventOffer) {
     this.eventOffer = eventOffer;
   }

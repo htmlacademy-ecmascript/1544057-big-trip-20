@@ -18,14 +18,14 @@ import EventFormDetailsView
 import EventFormOffersView
   from '../view/event/event-form-view/form-details-view/event-form-offers-view.js';
 import EventFromHeaderTypeView
-  from '../view/event/event-form-view/form-header-view/header-type';
+  from '../view/event/event-form-view/form-header-view/header-types-view.js';
 import EventFormHeaderView
   from '../view/event/event-form-view/form-header-view/header-view.js';
 import EventInfoView from '../view/event/event-info-view';
-import EventOfferView from '../view/event/event-offers.js';
+import EventOfferView from '../view/event/event-offer-view.js';
 import EventsItemView from '../view/events-item-view.js';
 
-export default class EventsListPresenter {
+export default class EventsPresenter {
   constructor({ eventsListContainer }) {
     this.eventsListContainer = eventsListContainer;
   }
