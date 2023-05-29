@@ -19,65 +19,76 @@ import EventOfferView from '../view/event/event-offer-view.js';
 import EventsItemView from '../view/events-item-view.js';
 
 export default class EventsPresenter {
+  #eventsListContainer = null;
+
   constructor({ eventsListContainer }) {
-    this.eventsListContainer = eventsListContainer;
+    this.#eventsListContainer = eventsListContainer;
   }
 
   #destinationsModel = new DestinationsModel();
   #offersModel = new OffersModel();
   #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
+  #events = this.#eventsModel.getAll();
 
   init() {
-    const events = this.#eventsModel.getAll();
     for (let i = 0; i < EVENT_COUNT; i++) {
-      const event = events[i];
-
+      const event = this.#events[i];
 
       const eventInfo = {
+        'form': false,
         'eventType': event.type,
         'eventCityName': this.#destinationsModel.getById(event.destination).name,
         'eventPrice': event.basePrice,
         'isFavorite': event.isFavorite,
         'eventStartDate': event.dateFrom,
-        'eventEndDate': event.dateTo
+        'eventEndDate': event.dateTo,
+        'destination': event.destination
       };
 
-      render(new EventsItemView(), this.eventsListContainer, RenderPosition.AFTERBEGIN);
-      const eventContainerNode = this.eventsListContainer.querySelector('.trip-events__item');
-
       if (i === EVENT_COUNT - 1) {
-        render(new EventFormView(), eventContainerNode, RenderPosition.AFTERBEGIN);
-
-        const eventFromConstainerNode = document.querySelector('.event--edit');
-        render(new EventFormDetailsView(), eventFromConstainerNode, RenderPosition.BEFOREEND);
-        render(new EventFormHeaderView({ formType: FormTypes.EDIT_FORM, eventInfo: eventInfo, destinations: this.#destinationsModel.getAll() }), eventFromConstainerNode, RenderPosition.AFTERBEGIN);
-
-        const eventFormHeaderContainerNode = eventFromConstainerNode.querySelector('.event__header');
-        render(new EventFromHeaderTypeView(eventInfo.eventType), eventFormHeaderContainerNode, RenderPosition.AFTERBEGIN);
-
-        const eventFormDetailsConstainerNode = eventContainerNode.querySelector('.event__details');
-        render(new EventFormOffersView(this.#offersModel.getByType(eventInfo.eventType)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
-        render(new EventFormDestinationView(this.#destinationsModel.getById(event.destination)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
-        continue;
+        eventInfo.form = true;
       }
 
-      render(new EventInfoView(eventInfo), eventContainerNode, RenderPosition.BEFOREEND);
-
-      const offersContainerNode = eventContainerNode.querySelector('.event__selected-offers');
-      const offers = this.#offersModel.getByType(event.type);
-
-      for (let j = 0; j < offers.length; j++) {
-        const offer = offers[j];
-        if (j === MAX_SELECT_OFFERS) {
-          break;
-        }
-
-        render(new EventOfferView(offer), offersContainerNode, RenderPosition.BEFOREEND);
-      }
+      this.#renderEvent(eventInfo);
     }
   }
 
-  // #renderEvent(event) {
-  //   const event
-  // }
+  #renderEvent(eventInfo) {
+    const { eventType, destination, form } = eventInfo;
+    const eventItemComponent = new EventsItemView();
+    const eventInfoComponent = new EventInfoView(eventInfo);
+
+    render(eventItemComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
+    const eventContainerNode = this.#eventsListContainer.querySelector('.trip-events__item');
+
+    if (form) {
+      render(new EventFormView(), eventContainerNode, RenderPosition.AFTERBEGIN);
+
+      const eventFromConstainerNode = document.querySelector('.event--edit');
+      render(new EventFormDetailsView(), eventFromConstainerNode, RenderPosition.BEFOREEND);
+      render(new EventFormHeaderView({ formType: FormTypes.EDIT_FORM, eventInfo: eventInfo, destinations: this.#destinationsModel.getAll() }), eventFromConstainerNode, RenderPosition.AFTERBEGIN);
+
+      const eventFormHeaderContainerNode = eventFromConstainerNode.querySelector('.event__header');
+      render(new EventFromHeaderTypeView(eventType), eventFormHeaderContainerNode, RenderPosition.AFTERBEGIN);
+
+      const eventFormDetailsConstainerNode = eventContainerNode.querySelector('.event__details');
+      render(new EventFormOffersView(this.#offersModel.getByType(eventType)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
+      render(new EventFormDestinationView(this.#destinationsModel.getById(destination)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
+      return;
+    }
+
+    render(eventInfoComponent, eventContainerNode, RenderPosition.BEFOREEND);
+
+    const offersContainerNode = eventContainerNode.querySelector('.event__selected-offers');
+    const offers = this.#offersModel.getByType(eventType);
+
+    for (let j = 0; j < offers.length; j++) {
+      const offer = offers[j];
+      if (j === MAX_SELECT_OFFERS) {
+        break;
+      }
+
+      render(new EventOfferView(offer), offersContainerNode, RenderPosition.BEFOREEND);
+    }
+  }
 }
