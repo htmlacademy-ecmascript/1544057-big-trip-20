@@ -1,15 +1,8 @@
-import {
-  EVENT_COUNT,
-  FormTypes,
-  MAX_SELECT_OFFERS
-} from '../constants.js';
+import { EVENT_COUNT, FormTypes, MAX_SELECT_OFFERS } from '../constants.js';
+import { render, RenderPosition } from '../framework/render.js';
 import DestinationsModel from '../model/destinations-model';
 import EventsModel from '../model/events-model';
 import OffersModel from '../model/offers-model';
-import {
-  render,
-  RenderPosition,
-} from '../render.js';
 import EventFormView from '../view/event/event-form-view/event-form-view.js';
 import EventFormDestinationView
   from '../view/event/event-form-view/form-details-view/event-form-destination-view.js';
@@ -30,20 +23,19 @@ export default class EventsPresenter {
     this.eventsListContainer = eventsListContainer;
   }
 
-
-  destinationsModel = new DestinationsModel();
-  offersModel = new OffersModel();
-  eventsModel = new EventsModel({ destinationsModel: this.destinationsModel, offersModel: this.offersModel });
+  #destinationsModel = new DestinationsModel();
+  #offersModel = new OffersModel();
+  #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
 
   init() {
-    const events = this.eventsModel.getAll();
+    const events = this.#eventsModel.getAll();
     for (let i = 0; i < EVENT_COUNT; i++) {
       const event = events[i];
 
 
       const eventInfo = {
         'eventType': event.type,
-        'eventCityName': this.destinationsModel.getById(event.destination).name,
+        'eventCityName': this.#destinationsModel.getById(event.destination).name,
         'eventPrice': event.basePrice,
         'isFavorite': event.isFavorite,
         'eventStartDate': event.dateFrom,
@@ -58,21 +50,21 @@ export default class EventsPresenter {
 
         const eventFromConstainerNode = document.querySelector('.event--edit');
         render(new EventFormDetailsView(), eventFromConstainerNode, RenderPosition.BEFOREEND);
-        render(new EventFormHeaderView({ formType: FormTypes.EDIT_FORM, eventInfo: eventInfo, destinations: this.destinationsModel.getAll() }), eventFromConstainerNode, RenderPosition.AFTERBEGIN);
+        render(new EventFormHeaderView({ formType: FormTypes.EDIT_FORM, eventInfo: eventInfo, destinations: this.#destinationsModel.getAll() }), eventFromConstainerNode, RenderPosition.AFTERBEGIN);
 
         const eventFormHeaderContainerNode = eventFromConstainerNode.querySelector('.event__header');
         render(new EventFromHeaderTypeView(eventInfo.eventType), eventFormHeaderContainerNode, RenderPosition.AFTERBEGIN);
 
         const eventFormDetailsConstainerNode = eventContainerNode.querySelector('.event__details');
-        render(new EventFormOffersView(this.offersModel.getByType(eventInfo.eventType)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
-        render(new EventFormDestinationView(this.destinationsModel.getById(event.destination)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
+        render(new EventFormOffersView(this.#offersModel.getByType(eventInfo.eventType)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
+        render(new EventFormDestinationView(this.#destinationsModel.getById(event.destination)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
         continue;
       }
 
       render(new EventInfoView(eventInfo), eventContainerNode, RenderPosition.BEFOREEND);
 
       const offersContainerNode = eventContainerNode.querySelector('.event__selected-offers');
-      const offers = this.offersModel.getByType(event.type);
+      const offers = this.#offersModel.getByType(event.type);
 
       for (let j = 0; j < offers.length; j++) {
         const offer = offers[j];
@@ -84,4 +76,8 @@ export default class EventsPresenter {
       }
     }
   }
+
+  // #renderEvent(event) {
+  //   const event
+  // }
 }

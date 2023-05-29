@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-stateful-view';
 
 const createEventsFilterTemplate = () => `<form class="trip-filters" action="#" method="get">
                 <div class="trip-filters__filter">
@@ -24,20 +24,8 @@ const createEventsFilterTemplate = () => `<form class="trip-filters" action="#" 
                 <button class="visually-hidden" type="submit">Accept filter</button>
               </form>`;
 
-export default class EventsFilterView {
-  getTemplate() {
+export default class EventsFilterView extends AbstractView {
+  get template() {
     return createEventsFilterTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

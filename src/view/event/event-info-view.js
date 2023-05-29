@@ -1,12 +1,6 @@
-import {
-  RENDER_DATE_FORMAT,
-  EVENT_INFO_FORMAT,
-} from '../../constants';
-import { createElement } from '../../render.js';
-import {
-  calculateDuration,
-  humanizeDate,
-} from '../../utils.js';
+import { EVENT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
+import AbstractView from '../../framework/view/abstract-stateful-view';
+import { calculateDuration, humanizeDate } from '../../utils.js';
 
 const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite }) => `<div class="event">
   <time class="event__date" datetime = "${eventStartDate}" > ${humanizeDate(eventStartDate, RENDER_DATE_FORMAT)}</time >
@@ -40,24 +34,15 @@ const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eve
 </div > `;
 
 
-export default class EventInfoView {
+export default class EventInfoView extends AbstractView {
+  #eventInfo = null;
+
   constructor(eventInfo) {
+    super();
     this.eventInfo = eventInfo;
   }
 
-  getTemplate() {
+  get template() {
     return createEventInfoTemplate(this.eventInfo);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,4 +1,4 @@
-import { createElement } from '../../render.js';
+import AbstractView from '../../framework/view/abstract-stateful-view';
 
 const createEventOfferTemplate = ({ price, title }) => `<li class="event__offer">
       <span class="event__offer-title">${title}</span>
@@ -6,24 +6,15 @@ const createEventOfferTemplate = ({ price, title }) => `<li class="event__offer"
       <span class="event__offer-price">${price}</span>
     </li>`;
 
-export default class EventOffersView {
+export default class EventOffersView extends AbstractView {
+  #eventOffer = null;
+
   constructor(eventOffer) {
-    this.eventOffer = eventOffer;
+    super();
+    this.#eventOffer = eventOffer;
   }
 
-  getTemplate() {
-    return createEventOfferTemplate(this.eventOffer);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createEventOfferTemplate(this.#eventOffer);
   }
 }

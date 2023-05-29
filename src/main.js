@@ -1,7 +1,7 @@
-import TripInfoView from './view/trip-info-view';
-import EventsFilterView from './view/events-filter-view';
+import { render, RenderPosition } from './framework/render.js';
 import EventsContainerPresenter from './presenter/events-container-presenter';
-import { render, RenderPosition } from './render';
+import EventsFilterView from './view/events-filter-view';
+import TripInfoView from './view/trip-info-view';
 
 const filterContinerNode = document.querySelector('.trip-controls__filters');
 const tripInfoContinerNode = document.querySelector('.trip-main');

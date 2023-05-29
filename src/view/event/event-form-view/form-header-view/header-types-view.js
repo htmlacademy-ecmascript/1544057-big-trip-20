@@ -1,4 +1,4 @@
-import { createElement } from '../../../../render.js';
+import AbstractView from '../../../../framework/view/abstract-stateful-view';
 
 const createHeaderTypesTemplate = (eventType) => `
   <div class="event__type-wrapper" >
@@ -60,24 +60,14 @@ const createHeaderTypesTemplate = (eventType) => `
     </div>
 </div>`;
 
-export default class HeaderTypesView {
+export default class HeaderTypesView extends AbstractView {
+  #eventType = null;
   constructor(eventType) {
-    this.eventType = eventType;
+    super();
+    this.#eventType = eventType;
   }
 
-  getTemplate() {
-    return createHeaderTypesTemplate(this.eventType);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createHeaderTypesTemplate(this.#eventType);
   }
 }

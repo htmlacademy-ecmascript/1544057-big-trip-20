@@ -1,7 +1,8 @@
-import { createElement } from '../../../../render.js';
+import AbstractView from '../../../../framework/view/abstract-stateful-view';
 import { getRandomInteger } from '../../../../utils.js';
 
 const renderPhoto = (photoSrc) => `<img class="event__photo" src="${photoSrc}" alt="Event photo">'`;
+
 const renderPhotos = () => {
   const photosLength = getRandomInteger(1, 5);
   const photos = [];
@@ -23,24 +24,15 @@ const createEventFormDestinationTemplate = ({ description }) => `<section class=
                     </div>
                   </section>`;
 
-export default class EventFormDestinationView {
+export default class EventFormDestinationView extends AbstractView {
+  #destination = null;
+
   constructor(destination) {
+    super();
     this.destination = destination;
   }
 
-  getTemplate() {
+  get template() {
     return createEventFormDestinationTemplate(this.destination);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

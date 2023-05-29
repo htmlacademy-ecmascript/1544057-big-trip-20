@@ -1,4 +1,4 @@
-import { createElement } from '../../../../render.js';
+import AbstractView from '../../../../framework/view/abstract-stateful-view';
 
 const createOffer = (offer) => `
       <div class="event__offer-selector">
@@ -19,24 +19,15 @@ const createEventFormOffersTemplate = (offers) => `
     </div>
 </section>`;
 
-export default class EventFormOffersView {
+export default class EventFormOffersView extends AbstractView {
+  #offers = null;
+
   constructor(offers) {
+    super();
     this.offers = offers;
   }
 
-  getTemplate() {
+  get template() {
     return createEventFormOffersTemplate(this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,6 +1,6 @@
-import { createElement } from '../../../../render.js';
-import { humanizeDate } from '../../../../utils.js';
 import { EVENT_FORM_FORMAT } from '../../../../constants.js';
+import AbstractView from '../../../../framework/view/abstract-stateful-view';
+import { humanizeDate } from '../../../../utils.js';
 
 const createEditButtonTemplate = () => `
   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -45,27 +45,21 @@ const createFormHeaderTemplate = (headerButton, { eventType, eventCityName, even
   ${headerButton}
 </header>`;
 
-export default class HeaderView {
+export default class HeaderView extends AbstractView {
+  #formType = null;
+  #eventInfo = null;
+  #destinations = null;
+
   constructor({ formType, eventInfo, destinations }) {
-    this.formType = formType;
-    this.eventInfo = eventInfo;
-    this.destinations = destinations;
+    super();
+    this.#formType = formType;
+    this.#eventInfo = eventInfo;
+    this.#destinations = destinations;
   }
 
-  getTemplate() {
-    const headerButton = this.formType === 'addForm' ? createAddButtonTemplate() : createEditButtonTemplate();
-    return createFormHeaderTemplate(headerButton, this.eventInfo, this.destinations);
-  }
+  get template() {
+    const headerButton = this.#formType === 'addForm' ? createAddButtonTemplate() : createEditButtonTemplate();
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+    return createFormHeaderTemplate(headerButton, this.#eventInfo, this.#destinations);
   }
 }
