@@ -12,9 +12,9 @@ export default class EventModel {
 
   #event = generateEvent();
 
-  get() {
+  get event() {
     const offers = this.#offersModel.getByType(this.#event.type);
-    this.#event.destination = getRandomArrayElement(this.#destinationsModel.getAll()).id;
+    this.#event.destination = getRandomArrayElement(this.#destinationsModel.destinations).id;
     this.#event.offers = offers.map((offer) => offer.id);
     return this.#event;
   }

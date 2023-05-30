@@ -3,7 +3,7 @@ import { generateDestinations } from '../mock/destinations-mock';
 export default class DestinationsModel {
   #destinations = generateDestinations();
 
-  getAll() {
+  get destinations() {
     return this.#destinations;
   }
 

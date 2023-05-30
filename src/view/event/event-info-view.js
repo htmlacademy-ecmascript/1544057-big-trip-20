@@ -59,13 +59,22 @@ const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eve
 
 export default class EventInfoView extends AbstractView {
   #eventInfo = null;
+  #handlerEditClick = null;
 
-  constructor(eventInfo) {
+  constructor({ eventInfo, onButtonClick }) {
     super();
     this.#eventInfo = eventInfo;
+    this.#handlerEditClick = onButtonClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
   get template() {
     return createEventInfoTemplate(this.#eventInfo);
   }
+
+  #editClickHandler = (event) => {
+    event.preventDefault();
+    this.#handlerEditClick();
+  };
 }

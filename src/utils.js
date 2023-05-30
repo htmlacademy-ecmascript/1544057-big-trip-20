@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+
 dayjs.extend(duration);
 
 const humanizeDate = (date, dateformat) => date ? dayjs(date).format(dateformat) : '';
@@ -40,8 +41,17 @@ const getRandomIntGenerator = (min = 1, max = 100) => {
   };
 };
 
+const checkEcsKeydownPress = (event, func, handkerFunc) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    func();
+    document.removeEventListener('keydown', handkerFunc);
+  }
+};
+
 export {
   calculateDuration,
+  checkEcsKeydownPress,
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,

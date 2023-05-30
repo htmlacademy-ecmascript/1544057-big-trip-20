@@ -153,14 +153,25 @@ export default class EventFormView extends AbstractView {
   #eventInfo = null;
   #formType = null;
   #destinations = null;
+  #handlerEditClick = null;
 
+  constructor({ formType, eventInfo, destinations, onButtonClick }) {
     super();
     this.#eventInfo = eventInfo;
     this.#formType = formType;
     this.#destinations = destinations;
+    this.#handlerEditClick = onButtonClick;
+
+    this.element.querySelector('.event__save-btn ').addEventListener('click', this.#editClickHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  }
 
   get template() {
     return createEventFormTemplate(this.#formType, this.#eventInfo, this.#destinations);
   }
 
+  #editClickHandler = (event) => {
+    event.preventDefault();
+    this.#handlerEditClick();
+  };
 }

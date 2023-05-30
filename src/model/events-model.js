@@ -12,11 +12,11 @@ export default class EventsModel {
   }
 
 
-  getAll() {
+  get events() {
     const events = Array.from({ length: getRandomInteger(EVENT_COUNT, 15) }, () => {
       const eventModel = new EventModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
 
-      return eventModel.get();
+      return eventModel.event;
     });
     return events;
   }

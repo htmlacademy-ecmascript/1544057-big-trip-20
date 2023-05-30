@@ -42,9 +42,16 @@ export default class EventsPresenter {
 
   #renderEvent(eventInfo) {
     const eventItemComponent = new EventsItemView();
-    const eventInfoComponent = new EventInfoView({ eventInfo });
+    const eventInfoComponent = new EventInfoView({
+      eventInfo, onButtonClick: () => {
+        replaceEventToForm();
+        document.addEventListener('keydown', ecsKeydownHandler);
+      }
+    });
     const eventFormComponent = new EventFormView({
-      formType: 'editForm', eventInfo, destinations: this.#destinationsModel.destinations
+      formType: 'editForm', eventInfo, destinations: this.#destinationsModel.destinations, onButtonClick: () => {
+        replaceFormToEvent();
+      }
     });
 
     render(eventItemComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
@@ -52,31 +59,18 @@ export default class EventsPresenter {
 
     render(eventInfoComponent, eventsItemContainerNode, RenderPosition.BEFOREEND);
 
-      const eventFromConstainerNode = document.querySelector('.event--edit');
-      render(new EventFormDetailsView(), eventFromConstainerNode, RenderPosition.BEFOREEND);
-      render(new EventFormHeaderView({ formType: FormTypes.EDIT_FORM, eventInfo: eventInfo, destinations: this.#destinationsModel.getAll() }), eventFromConstainerNode, RenderPosition.AFTERBEGIN);
 
-      const eventFormHeaderContainerNode = eventFromConstainerNode.querySelector('.event__header');
-      render(new EventFromHeaderTypeView(eventType), eventFormHeaderContainerNode, RenderPosition.AFTERBEGIN);
-
-      const eventFormDetailsConstainerNode = eventContainerNode.querySelector('.event__details');
-      render(new EventFormOffersView(this.#offersModel.getByType(eventType)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
-      render(new EventFormDestinationView(this.#destinationsModel.getById(destination)), eventFormDetailsConstainerNode, RenderPosition.BEFOREEND);
-      return;
+    function ecsKeydownHandler(event) {
+      checkEcsKeydownPress(event, replaceFormToEvent);
     }
 
-    render(eventInfoComponent, eventContainerNode, RenderPosition.BEFOREEND);
+    function replaceFormToEvent() {
+      replace(eventInfoComponent, eventFormComponent);
+      document.removeEventListener('keydown', ecsKeydownHandler);
+    }
 
-    const offersContainerNode = eventContainerNode.querySelector('.event__selected-offers');
-    const offers = this.#offersModel.getByType(eventType);
-
-    for (let j = 0; j < offers.length; j++) {
-      const offer = offers[j];
-      if (j === MAX_SELECT_OFFERS) {
-        break;
-      }
-
-      render(new EventOfferView(offer), offersContainerNode, RenderPosition.BEFOREEND);
+    function replaceEventToForm() {
+      replace(eventFormComponent, eventInfoComponent);
     }
   }
 }
