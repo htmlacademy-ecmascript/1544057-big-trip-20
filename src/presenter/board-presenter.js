@@ -3,7 +3,7 @@ import EventsListView from '../view/events-list-view.js';
 import EventSortView from '../view/events-sort-view.js';
 import EventsPresenter from './events-presenter.js';
 
-export default class EventsContainerPresenter {
+export default class BoardPresenter {
   #eventSortComponent = new EventSortView();
   #eventsListComponent = new EventsListView();
 

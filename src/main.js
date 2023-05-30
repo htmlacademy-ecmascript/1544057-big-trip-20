@@ -1,5 +1,5 @@
 import { render, RenderPosition } from './framework/render.js';
-import EventsContainerPresenter from './presenter/events-container-presenter';
+import BoardPresenter from './presenter/board-presenter.js';
 import EventsFilterView from './view/events-filter-view';
 import TripInfoView from './view/trip-info-view';
 
@@ -10,6 +10,6 @@ const tripInfoContinerNode = document.querySelector('.trip-main');
 render(new TripInfoView(), tripInfoContinerNode, RenderPosition.AFTERBEGIN);
 render(new EventsFilterView(), filterContinerNode, RenderPosition.AFTERBEGIN);
 
-const eventsContainerPresenter = new EventsContainerPresenter();
+const eventsContainerPresenter = new BoardPresenter();
 
 eventsContainerPresenter.init();
