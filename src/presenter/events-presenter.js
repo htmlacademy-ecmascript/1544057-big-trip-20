@@ -1,21 +1,11 @@
-import { EVENT_COUNT, FormTypes, MAX_SELECT_OFFERS } from '../constants.js';
-import { render, RenderPosition } from '../framework/render.js';
+import { EVENT_COUNT } from '../constants.js';
+import { render, RenderPosition, replace } from '../framework/render.js';
 import DestinationsModel from '../model/destinations-model';
 import EventsModel from '../model/events-model';
 import OffersModel from '../model/offers-model';
-import EventFormView from '../view/event/event-form-view/event-form-view.js';
-import EventFormDestinationView
-  from '../view/event/event-form-view/form-details-view/event-form-destination-view.js';
-import EventFormDetailsView
-  from '../view/event/event-form-view/form-details-view/event-form-details-view.js';
-import EventFormOffersView
-  from '../view/event/event-form-view/form-details-view/event-form-offers-view.js';
-import EventFromHeaderTypeView
-  from '../view/event/event-form-view/form-header-view/header-types-view.js';
-import EventFormHeaderView
-  from '../view/event/event-form-view/form-header-view/header-view.js';
+import { checkEcsKeydownPress } from '../utils.js';
+import EventFormView from '../view/event/event-form-view.js';
 import EventInfoView from '../view/event/event-info-view';
-import EventOfferView from '../view/event/event-offer-view.js';
 import EventsItemView from '../view/events-item-view.js';
 
 export default class EventsPresenter {
@@ -28,41 +18,39 @@ export default class EventsPresenter {
   #destinationsModel = new DestinationsModel();
   #offersModel = new OffersModel();
   #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
-  #events = this.#eventsModel.getAll();
+  #events = this.#eventsModel.events;
 
   init() {
     for (let i = 0; i < EVENT_COUNT; i++) {
       const event = this.#events[i];
-
+      const destination = this.#destinationsModel.getById(event.destination);
+      // { formType, description, offers, eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, destinations; }
       const eventInfo = {
-        'form': false,
         'eventType': event.type,
-        'eventCityName': this.#destinationsModel.getById(event.destination).name,
+        'eventCityName': destination.name,
         'eventPrice': event.basePrice,
         'isFavorite': event.isFavorite,
         'eventStartDate': event.dateFrom,
         'eventEndDate': event.dateTo,
-        'destination': event.destination
+        destination,
+        'offers': this.#offersModel.getByType(event.type)
       };
-
-      if (i === EVENT_COUNT - 1) {
-        eventInfo.form = true;
-      }
 
       this.#renderEvent(eventInfo);
     }
   }
 
   #renderEvent(eventInfo) {
-    const { eventType, destination, form } = eventInfo;
     const eventItemComponent = new EventsItemView();
-    const eventInfoComponent = new EventInfoView(eventInfo);
+    const eventInfoComponent = new EventInfoView({ eventInfo });
+    const eventFormComponent = new EventFormView({
+      formType: 'editForm', eventInfo, destinations: this.#destinationsModel.destinations
+    });
 
     render(eventItemComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
-    const eventContainerNode = this.#eventsListContainer.querySelector('.trip-events__item');
+    const eventsItemContainerNode = this.#eventsListContainer.querySelector('.trip-events__item');
 
-    if (form) {
-      render(new EventFormView(), eventContainerNode, RenderPosition.AFTERBEGIN);
+    render(eventInfoComponent, eventsItemContainerNode, RenderPosition.BEFOREEND);
 
       const eventFromConstainerNode = document.querySelector('.event--edit');
       render(new EventFormDetailsView(), eventFromConstainerNode, RenderPosition.BEFOREEND);
