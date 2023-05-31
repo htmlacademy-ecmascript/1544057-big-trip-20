@@ -3,7 +3,7 @@ import { render, RenderPosition, replace } from '../framework/render.js';
 import DestinationsModel from '../model/destinations-model';
 import EventsModel from '../model/events-model';
 import OffersModel from '../model/offers-model';
-import { checkEcsKeydownPress } from '../utils.js';
+import { checkEcsKeydownPress } from '../utils/commons.js';
 import EventFormView from '../view/event/event-form-view.js';
 import EventInfoView from '../view/event/event-info-view';
 import EventsItemView from '../view/events-item-view.js';

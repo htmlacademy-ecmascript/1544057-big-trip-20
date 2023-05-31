@@ -1,6 +1,9 @@
-import { getRandomInteger, getRandomArrayElement, getRandomIntGenerator } from '../utils';
-import { EVENT_TYPES, DESCRIPTIONS } from './constants-mock';
-
+import {
+  getRandomArrayElement,
+  getRandomInteger,
+  getRandomIntGenerator,
+} from '../utils/commons.js';
+import { DESCRIPTIONS, EVENT_TYPES } from './constants-mock';
 
 const offerId = getRandomIntGenerator();
 

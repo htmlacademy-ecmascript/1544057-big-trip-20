@@ -1,6 +1,7 @@
 import { EVENT_FORM_FORMAT } from '../../constants.js';
 import AbstractView from '../../framework/view/abstract-stateful-view.js';
-import { getRandomInteger, humanizeDate } from '../../utils.js';
+import { getRandomInteger } from '../../utils/commons.js';
+import { humanizeDate } from '../../utils/events.js';
 
 const createEditButtonTemplate = () => `
   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>

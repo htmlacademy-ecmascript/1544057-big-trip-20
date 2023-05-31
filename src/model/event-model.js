@@ -1,5 +1,5 @@
 import { generateEvent } from '../mock/event-mock';
-import { getRandomArrayElement } from '../utils';
+import { getRandomArrayElement } from '../utils/commons';
 
 export default class EventModel {
   #destinationsModel = null;

@@ -4,7 +4,7 @@ import {
   RENDER_DATE_FORMAT,
 } from '../../constants';
 import AbstractView from '../../framework/view/abstract-stateful-view';
-import { calculateDuration, humanizeDate } from '../../utils.js';
+import { calculateDuration, humanizeDate } from '../../utils/events';
 
 const createOffer = ({ title, price }) => `<li class="event__offer">
       <span class="event__offer-title">${title}</span>

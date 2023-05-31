@@ -2,7 +2,7 @@ import {
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,
-} from '../utils';
+} from '../utils/commons.js';
 import { EVENT_TYPES } from './constants-mock';
 
 const eventId = getRandomIntGenerator();

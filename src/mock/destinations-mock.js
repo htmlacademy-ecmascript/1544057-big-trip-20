@@ -1,4 +1,8 @@
-import { getRandomInteger, getRandomArrayElement, getRandomIntGenerator } from '../utils';
+import {
+  getRandomArrayElement,
+  getRandomInteger,
+  getRandomIntGenerator,
+} from '../utils/commons.js';
 import { DESCRIPTIONS } from './constants-mock';
 
 const CITY_NAMES = ['Amsterdam', 'Chamonix', 'Geneva', 'Rome', 'New York'];

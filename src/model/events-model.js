@@ -1,6 +1,6 @@
 import { EVENT_COUNT } from '../constants';
 import EventModel from '../model/event-model';
-import { getRandomInteger } from '../utils';
+import { getRandomInteger } from '../utils/commons';
 
 export default class EventsModel {
   #destinationsModel = null;
