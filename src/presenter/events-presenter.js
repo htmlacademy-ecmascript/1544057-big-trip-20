@@ -10,21 +10,26 @@ import EventsItemView from '../view/events-item-view.js';
 
 export default class EventsPresenter {
   #eventsListContainer = null;
+  #events = null;
+  #destinationsModel = new DestinationsModel();
+  #offersModel = new OffersModel();
+  #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
 
   constructor({ eventsListContainer }) {
     this.#eventsListContainer = eventsListContainer;
   }
 
-  #destinationsModel = new DestinationsModel();
-  #offersModel = new OffersModel();
-  #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
-  #events = this.#eventsModel.events;
-
   init() {
+    this.#events = [...this.#eventsModel.events];
+
+    this.#renderEvents();
+  }
+
+  #renderEvents() {
     for (let i = 0; i < EVENT_COUNT; i++) {
       const event = this.#events[i];
       const destination = this.#destinationsModel.getById(event.destination);
-      // { formType, description, offers, eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, destinations; }
+
       const eventInfo = {
         'eventType': event.type,
         'eventCityName': destination.name,
