@@ -16,8 +16,8 @@ const createAddButtonTemplate = () => `
   <button class="event__reset-btn" type="reset">Cancel</button>
 `;
 
-
 const renderPhoto = (photoSrc) => `<img class="event__photo" src="${photoSrc}" alt="Event photo">'`;
+
 
 const renderPhotos = () => {
   const photosLength = getRandomInteger(1, 5);
@@ -29,6 +29,11 @@ const renderPhotos = () => {
   return photos.join('\n');
 };
 
+/**
+ *
+ * @param {Object} offer
+ * @returns {string}
+ */
 const createOffer = (offer) => `
 <div class="event__offer-selector">
   <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage">
@@ -39,6 +44,26 @@ const createOffer = (offer) => `
   </label>
 </div>`;
 
+/**
+ *
+ * @param {Array} offers
+ * @returns {string}
+ */
+const createOffers = (offers) => offers.map((offer) => createOffer(offer)).join('\n');
+/**
+ *
+ * @param {Array} destinations
+ * @returns {string}
+ */
+const createDestinations = (destinations) => destinations.map((elem) => `<option value="${elem.name}"></option>`).join();
+
+/**
+ *
+ * @param {string} formType
+ * @param {object} param1 Event info object
+ * @param {Array<object>} destinations array of destination
+ * @returns {string} Event template
+ */
 const createEventFormTemplate = (formType, { offers, eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, destination }, destinations) => `
 <form class="event event--edit" action="#" method="post">
   <header class="event__header">
@@ -106,7 +131,7 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
       </label>
       <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventCityName}" list="destination-list-1">
       <datalist id="destination-list-1">
-      ${destinations.map((elem) => `<option value="${elem.name}"></option>`).join()}
+      ${createDestinations(destinations)}
       </datalist>
     </div>
 
@@ -133,7 +158,7 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
     <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
-          ${offers.map((offer) => createOffer(offer)).join('\n')}
+          ${createOffers(offers)}
         </div>
     </section>
 
@@ -150,6 +175,10 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
   </section>
 </form>`;
 
+
+/** Класс представления формы изменения или добавления точки путешесвия
+ * @class EventFormView
+*/
 export default class EventFormView extends AbstractView {
   #eventInfo = null;
   #formType = null;
