@@ -6,7 +6,6 @@ import OffersModel from '../model/offers-model';
 import { checkEcsKeydownPress } from '../utils/commons.js';
 import EventFormView from '../view/event/event-form-view.js';
 import EventInfoView from '../view/event/event-info-view';
-import EventsItemView from '../view/events-item-view.js';
 
 export default class EventsPresenter {
   #eventsListContainer = null;
@@ -46,7 +45,6 @@ export default class EventsPresenter {
   }
 
   #renderEvent(eventInfo) {
-    const eventItemComponent = new EventsItemView();
     const eventInfoComponent = new EventInfoView({
       eventInfo, onButtonClick: () => {
         replaceEventToForm();
@@ -59,10 +57,7 @@ export default class EventsPresenter {
       }
     });
 
-    render(eventItemComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
-    const eventsItemContainerNode = this.#eventsListContainer.querySelector('.trip-events__item');
-
-    render(eventInfoComponent, eventsItemContainerNode, RenderPosition.BEFOREEND);
+    render(eventInfoComponent, this.#eventsListContainer, RenderPosition.BEFOREEND);
 
 
     function ecsKeydownHandler(event) {

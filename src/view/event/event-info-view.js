@@ -26,7 +26,9 @@ const renderOffers = (offers) => {
 };
 
 
-const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite, offers }) => `<div class="event">
+const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite, offers }) => `
+<li class="trip-events__item">
+  <div class="event">
   <time class="event__date" datetime = "${eventStartDate}" > ${humanizeDate(eventStartDate, RENDER_DATE_FORMAT)}</time >
   <div class="event__type">
     <img class="event__type-icon" width="42" height="42" src="img/icons/${eventType}.png" alt="Event type icon">
@@ -54,7 +56,9 @@ const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eve
     </svg>
   </button>
   <button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>
-</div > `;
+</div >
+</li>
+`;
 
 
 export default class EventInfoView extends AbstractView {
