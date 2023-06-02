@@ -7,4 +7,6 @@ const DESCRIPTIONS = [
   'Cras aliquet varius magna, non porta ligula feugiat eget.'
 ];
 
-export { EVENT_TYPES, DESCRIPTIONS };
+const MAX_SELECT_OFFERS = 3;
+
+export { DESCRIPTIONS, EVENT_TYPES, MAX_SELECT_OFFERS };

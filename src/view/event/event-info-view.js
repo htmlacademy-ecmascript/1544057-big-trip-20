@@ -1,8 +1,4 @@
-import {
-  EVENT_INFO_FORMAT,
-  MAX_SELECT_OFFERS,
-  RENDER_DATE_FORMAT,
-} from '../../constants';
+import { EVENT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
 import AbstractView from '../../framework/view/abstract-stateful-view';
 import { calculateDuration, humanizeDate } from '../../utils/events';
 
@@ -12,18 +8,7 @@ const createOffer = ({ title, price }) => `<li class="event__offer">
       <span class="event__offer-price">${price}</span>
     </li>`;
 
-const renderOffers = (offers) => {
-  const offersTemplate = [];
-  for (let i = 0; i < offers.length; i++) {
-    const offer = offers[i];
-    if (i === MAX_SELECT_OFFERS) {
-      break;
-    }
-    offersTemplate.push(createOffer(offer));
-  }
-
-  return offersTemplate.join('\n');
-};
+const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join('\n');
 
 
 const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite, offers }) => `
