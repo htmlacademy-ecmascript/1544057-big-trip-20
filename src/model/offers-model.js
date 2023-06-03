@@ -11,4 +11,10 @@ export default class OffersModel {
     return this.#offers
       .find((offer) => offer.type === type).offers;
   }
+
+  getById(id) {
+    const offers = this.#offers.map((offer) => offer.offers).flat();
+    return offers.find((offer) => offer.id === id);
+
+  }
 }

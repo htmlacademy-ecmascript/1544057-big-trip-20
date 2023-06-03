@@ -1,10 +1,11 @@
-import { EVENT_COUNT } from '../constants';
+import { MAX_EVENTS, MIN_EVENTS } from '../constants';
 import EventModel from '../model/event-model';
-import { getRandomInteger } from '../utils';
+import { getRandomInteger } from '../utils/commons';
 
 export default class EventsModel {
   #destinationsModel = null;
   #offersModel = null;
+  #events = null;
 
   constructor({ destinationsModel, offersModel }) {
     this.#destinationsModel = destinationsModel;
@@ -13,12 +14,14 @@ export default class EventsModel {
 
 
   get events() {
-    const events = Array.from({ length: getRandomInteger(EVENT_COUNT, 15) }, () => {
-      const eventModel = new EventModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
+    if (!this.#events) {
+      this.#events = Array.from({ length: getRandomInteger(MIN_EVENTS, MAX_EVENTS) }, () => {
+        const eventModel = new EventModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
 
-      return eventModel.event;
-    });
-    return events;
+        return eventModel.event;
+      });
+    }
+    return this.#events;
   }
 
   getById(id) {

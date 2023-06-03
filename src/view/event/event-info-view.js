@@ -1,10 +1,6 @@
-import {
-  EVENT_INFO_FORMAT,
-  MAX_SELECT_OFFERS,
-  RENDER_DATE_FORMAT,
-} from '../../constants';
+import { EVENT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
 import AbstractView from '../../framework/view/abstract-stateful-view';
-import { calculateDuration, humanizeDate } from '../../utils.js';
+import { calculateDuration, humanizeDate } from '../../utils/events';
 
 const createOffer = ({ title, price }) => `<li class="event__offer">
       <span class="event__offer-title">${title}</span>
@@ -12,21 +8,12 @@ const createOffer = ({ title, price }) => `<li class="event__offer">
       <span class="event__offer-price">${price}</span>
     </li>`;
 
-const renderOffers = (offers) => {
-  const offersTemplate = [];
-  for (let i = 0; i < offers.length; i++) {
-    const offer = offers[i];
-    if (i === MAX_SELECT_OFFERS) {
-      break;
-    }
-    offersTemplate.push(createOffer(offer));
-  }
-
-  return offersTemplate.join('\n');
-};
+const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join('\n');
 
 
-const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite, offers }) => `<div class="event">
+const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite, offers }) => `
+<li class="trip-events__item">
+  <div class="event">
   <time class="event__date" datetime = "${eventStartDate}" > ${humanizeDate(eventStartDate, RENDER_DATE_FORMAT)}</time >
   <div class="event__type">
     <img class="event__type-icon" width="42" height="42" src="img/icons/${eventType}.png" alt="Event type icon">
@@ -54,7 +41,9 @@ const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eve
     </svg>
   </button>
   <button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>
-</div > `;
+</div >
+</li>
+`;
 
 
 export default class EventInfoView extends AbstractView {
