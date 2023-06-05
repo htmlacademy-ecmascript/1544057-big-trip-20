@@ -11,6 +11,18 @@ import EventPresenter from './event-presenter.js';
 import FiltersPresenter from './filters-presenter.js';
 import TripInfoPresenter from './trip-info-presenter.js';
 
+/**
+ * @typedef EventInfo
+ * @type {Object}
+ * @property {string} eventType
+ * @property {string|undefined} eventCityName
+ * @property {number} eventPrice
+ * @property {boolean} isFavorite
+ * @property {string} eventStartDate
+ * @property {string} eventEndDate
+ * @property {object} destination
+ * @property {Array<object>} offers
+*/
 export default class PagePresenter {
   /**@type{FiltersPresenter} */
   #filtersPresenter;
@@ -22,15 +34,10 @@ export default class PagePresenter {
   #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
   #tripEvents = [...this.#eventsModel.events];
 
-  constructor() {
-
-  }
-
   init() {
     this.#renderHeader();
     this.#renderBody();
   }
-
 
   #renderHeader() {
     if (this.#tripEvents.length > 0) {
@@ -65,23 +72,10 @@ export default class PagePresenter {
         this.#tripEvents.forEach((event) => {
           const destination = this.#destinationsModel.getById(event.destination);
 
-          /**
-           * @typedef EventInfo
-           * @type {Object}
-           * @property {string} eventType
-           * @property {string} eventCityName
-           * @property {number} eventPrice
-           * @property {boolean} isFavorite
-           * @property {string} eventStartDate
-           * @property {string} eventEndDate
-           * @property {object} destination
-           * @property {Array<object>} offers
-          */
-
           /**@type {EventInfo}*/
           const EventInfo = {
             'eventType': event.type,
-            'eventCityName': destination.name,
+            'eventCityName': destination?.name,
             'eventPrice': event.basePrice,
             'isFavorite': Boolean(event.isFavorite),
             'eventStartDate': event.dateFrom,

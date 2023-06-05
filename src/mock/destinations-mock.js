@@ -1,3 +1,4 @@
+//@ts-check
 import {
   getRandomArrayElement,
   getRandomInteger,
@@ -13,6 +14,23 @@ const generatePicture = () => ({
   'description': getRandomArrayElement(DESCRIPTIONS)
 });
 
+/**
+ * @typedef Id Unique identifier
+ * @type {string}
+ */
+
+/**
+ * @typedef Destination
+ * @type {Object}
+ * @property {Id} id
+ * @property {string} description
+ * @property {string} name
+ * @property {Array<HTMLElement>} pictures
+ */
+
+/**
+ * @returns {Array<Destination>}
+ */
 export const generateDestinations = () => {
   const destinations = [];
 
@@ -20,7 +38,7 @@ export const generateDestinations = () => {
     'id': `destination-${destinationId()}`,
     'description': getRandomArrayElement(DESCRIPTIONS),
     'name': cityName,
-    'pictures': Array.from({ length: getRandomInteger(null, 10) }, generatePicture)
+    'pictures': Array.from({ length: getRandomInteger(undefined, 10) }, generatePicture)
   })
   );
 

@@ -22,8 +22,9 @@ export default class EventPresenter {
     this.#destinations = destinations;
   }
 
+  /**@typedef {import('./page-presenter').EventInfo}  EventInfo*/
   /**
-   * @param {{ eventType: string; eventCityName: string; eventPrice: number; isFavorite: boolean; eventStartDate: string; eventEndDate: string; destination: object; offers: Object[]; }} eventInfo
+   * @param {EventInfo} eventInfo
    */
   init(eventInfo) {
     this.#eventInfoComponent = new EventInfoView({

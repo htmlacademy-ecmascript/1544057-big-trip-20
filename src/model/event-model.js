@@ -5,7 +5,7 @@ import { getRandomArrayElement, getRandomInteger } from '../utils/commons';
 /**
  * @typedef Params
  * @type {Object}
- * @property {Object} destinationsModel
+ * @property {import('./destinations-model').DestinationsCollection} destinationsModel
  * @property {Object} offersModel
  */
 
