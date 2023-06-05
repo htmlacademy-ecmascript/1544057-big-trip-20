@@ -1,6 +1,6 @@
 //@ts-check
 import { FormTypes } from '../constants.js';
-import { render, RenderPosition, replace } from '../framework/render.js';
+import { remove, render, replace } from '../framework/render.js';
 import { checkEcsKeydownPress } from '../utils/commons.js';
 import EventFormView from '../view/event/event-form-view.js';
 import EventInfoView from '../view/event/event-info-view.js';
@@ -9,6 +9,10 @@ import EventInfoView from '../view/event/event-info-view.js';
 export default class EventPresenter {
   #eventsListContainer;
   #destinations;
+  /**@type{EventInfoView}*/
+  #eventInfoComponent;
+  /**@type{EventFormView}*/
+  #eventFormComponent;
 
   /**
    * @param {{eventsListContainer: HTMLElement, destinations: Array<object>}} params
@@ -19,35 +23,62 @@ export default class EventPresenter {
   }
 
   /**
-   * @param {{ eventType: string; eventCityName: any; eventPrice: number; isFavorite: boolean; eventStartDate: string; eventEndDate: string; destination: any; offers: any[]; }} eventInfo
+   * @param {{ eventType: string; eventCityName: string; eventPrice: number; isFavorite: boolean; eventStartDate: string; eventEndDate: string; destination: object; offers: Object[]; }} eventInfo
    */
   init(eventInfo) {
-    const eventInfoComponent = new EventInfoView({
+    this.#eventInfoComponent = new EventInfoView({
       eventInfo: eventInfo, onButtonClick: () => {
         replaceEventToForm();
         document.addEventListener('keydown', ecsKeydownHandler);
       }
     });
-    const eventFormComponent = new EventFormView({
+    this.#eventFormComponent = new EventFormView({
       formType: FormTypes.EDIT_FORM, eventInfo: eventInfo, destinations: this.#destinations, onButtonClick: () => {
         replaceFormToEvent();
       }
     });
 
-    render(eventInfoComponent, this.#eventsListContainer, RenderPosition.BEFOREEND);
+    const prevInfoComponent = this.#eventInfoComponent;
+    const prevEditFormComponent = this.#eventFormComponent;
+
+    if (!prevInfoComponent || !prevEditFormComponent) {
+      render(this.#eventInfoComponent, this.#eventsListContainer);
+      return;
+    }
+
+    // Проверка на наличие в DOM необходима,
+    // чтобы не пытаться заменить то, что не было отрисовано
+    if (this.#eventsListContainer.contains(prevInfoComponent.element)) {
+      replace(this.#eventInfoComponent, prevInfoComponent);
+    }
+
+    if (this.#eventsListContainer.contains(prevEditFormComponent.element)) {
+      replace(this.#eventFormComponent, prevEditFormComponent);
+    }
+
+    remove(prevInfoComponent);
+    remove(prevEditFormComponent);
 
 
+    /**
+     * @param {KeyboardEvent} event
+     */
     function ecsKeydownHandler(event) {
       checkEcsKeydownPress(event, replaceFormToEvent);
     }
 
     function replaceFormToEvent() {
-      replace(eventInfoComponent, eventFormComponent);
+      replace(this.#eventInfoComponent, this.#eventFormComponent);
       document.removeEventListener('keydown', ecsKeydownHandler);
     }
 
     function replaceEventToForm() {
-      replace(eventFormComponent, eventInfoComponent);
+      replace(this.#eventFormComponent, this.#eventInfoComponent);
     }
+  }
+
+  destroy() {
+    remove(this.#eventInfoComponent);
+    remove(this.#eventFormComponent);
   }
 }
