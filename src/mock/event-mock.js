@@ -1,3 +1,4 @@
+//@ts-check
 import {
   getRandomArrayElement,
   getRandomInteger,
@@ -7,6 +8,23 @@ import { EVENT_TYPES } from './constants-mock';
 
 const eventId = getRandomIntGenerator();
 
+/**
+ * @typedef GenerateEventObject
+ * @type {Object}
+ * @property {string} id
+ * @property {number} basePrice
+ * @property {string} dateFrom
+ * @property {string} dateTo
+ * @property {null} destination
+ * @property {number} isFavorite
+ * @property {null} offers
+ * @property {number} type
+ */
+
+/**
+ * Функция для генерации события
+ * @returns {GenerateEventObject}
+ */
 export const generateEvent = () => {
   let day = getRandomInteger(1, 28);
   const year = `20${getRandomInteger(10, 30)}`;

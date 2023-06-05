@@ -1,31 +1,61 @@
+//@ts-check
 import { MAX_EVENTS, MIN_EVENTS } from '../constants';
 import EventModel from '../model/event-model';
 import { getRandomInteger } from '../utils/commons';
 
+/**
+  * @typedef EventObject
+  * @type {Object}
+  * @property {string} id
+  * @property {number} basePrice
+  * @property {string} dateFrom
+  * @property {string} dateTo
+  * @property {string} destination
+  * @property {number} isFavorite
+  * @property {Array<string>} offers
+  * @property {string} type
+  */
 export default class EventsModel {
   #destinationsModel = null;
   #offersModel = null;
-  #events = null;
+  /** @type{Array<EventObject>} */
+  #events;
 
+  /**
+   * @typedef Params
+   * @type {Object}
+   * @property {object} destinationsModel
+   * @property {object} offersModel
+   */
+
+  /**
+   * @param {Params} params
+   */
   constructor({ destinationsModel, offersModel }) {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+
+    this.#events = Array.from({ length: getRandomInteger(MIN_EVENTS, MAX_EVENTS) }, () => {
+      /**@type{EventModel} */
+      const eventModel = new EventModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
+
+      return eventModel.event;
+    });
   }
 
-
+  /**
+   * @returns {Array<EventObject>}
+   */
   get events() {
-    if (!this.#events) {
-      this.#events = Array.from({ length: getRandomInteger(MIN_EVENTS, MAX_EVENTS) }, () => {
-        const eventModel = new EventModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
-
-        return eventModel.event;
-      });
-    }
     return this.#events;
   }
 
+  /**
+   * @param {string} id
+   * @returns {?EventObject}
+   */
   getById(id) {
-    return this.events
-      .find((events) => events.id === id);
+    const result = this.events.find((event) => event.id === id);
+    return result ? result : null;
   }
 }
