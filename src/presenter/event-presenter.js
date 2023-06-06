@@ -27,6 +27,9 @@ export default class EventPresenter {
    * @param {EventInfo} eventInfo
    */
   init(eventInfo) {
+    const prevInfoComponent = this.#eventInfoComponent;
+    const prevEditFormComponent = this.#eventFormComponent;
+
     this.#eventInfoComponent = new EventInfoView({
       eventInfo: eventInfo, onButtonClick: () => {
         replaceEventToForm();
@@ -39,16 +42,11 @@ export default class EventPresenter {
       }
     });
 
-    const prevInfoComponent = this.#eventInfoComponent;
-    const prevEditFormComponent = this.#eventFormComponent;
-
     if (!prevInfoComponent || !prevEditFormComponent) {
       render(this.#eventInfoComponent, this.#eventsListContainer);
       return;
     }
 
-    // Проверка на наличие в DOM необходима,
-    // чтобы не пытаться заменить то, что не было отрисовано
     if (this.#eventsListContainer.contains(prevInfoComponent.element)) {
       replace(this.#eventInfoComponent, prevInfoComponent);
     }
@@ -78,6 +76,9 @@ export default class EventPresenter {
     }
   }
 
+  /**
+ * Удаляет компонент
+ */
   destroy() {
     remove(this.#eventInfoComponent);
     remove(this.#eventFormComponent);
