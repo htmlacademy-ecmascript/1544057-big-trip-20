@@ -14,6 +14,7 @@ export default class DestinationsModel {
 
   /**
    * @param {string} id
+   * @returns {Destination| undefined} Destination
    */
   getById(id) {
     return this.#destinations

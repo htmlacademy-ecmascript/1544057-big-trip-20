@@ -3,6 +3,10 @@ import AbstractView from '../../framework/view/abstract-stateful-view.js';
 import { getRandomInteger } from '../../utils/commons.js';
 import { humanizeDate } from '../../utils/events.js';
 
+/**@typedef {import('../../model/offers-model.js').Offer} Offer*/
+/**@typedef {import('../../model/destinations-model.js').Destination} Destination*/
+/**@typedef {import('../../model/events-model.js').EventObject} EventObject*/
+/**@typedef {import('../../presenter/event-presenter.js').EventInfo} EventInfo*/
 const createEditButtonTemplate = () => `
   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
   <button class="event__reset-btn" type="reset">Delete</button>
@@ -16,7 +20,11 @@ const createAddButtonTemplate = () => `
   <button class="event__reset-btn" type="reset">Cancel</button>
 `;
 
-const renderPhoto = (photoSrc) => `<img class="event__photo" src="${photoSrc}" alt="Event photo">'`;
+/**
+ * @param {string} photoSrc Путь к фотографии
+ * @returns {string}
+ */
+const renderPhoto = (photoSrc) => `<img class="event__photo" src="${photoSrc}" alt="Event photo">`;
 
 
 const renderPhotos = () => {
@@ -30,8 +38,7 @@ const renderPhotos = () => {
 };
 
 /**
- *
- * @param {Object} offer
+ * @param {Offer} offer
  * @returns {string}
  */
 const createOffer = (offer) => `
@@ -46,32 +53,31 @@ const createOffer = (offer) => `
 
 /**
  *
- * @param {Array} offers
+ * @param {Array<Offer>} offers
  * @returns {string}
  */
 const createOffers = (offers) => offers.map((offer) => createOffer(offer)).join('\n');
 /**
  *
- * @param {Array} destinations
+ * @param {Array<Destination>} destinations
  * @returns {string}
  */
 const createDestinations = (destinations) => destinations.map((elem) => `<option value="${elem.name}"></option>`).join();
 
 /**
- *
  * @param {string} formType
  * @param {object} param1 Event info object
  * @param {Array<object>} destinations array of destination
  * @returns {string} Event template
  */
-const createEventFormTemplate = (formType, { offers, eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, destination }, destinations) => `
+const createEventFormTemplate = (formType, { offersInfo, type, dateFrom, dateTo, basePrice, destinationInfo }, destinations) => `
 <li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper" >
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${eventType}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -128,9 +134,9 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
       </div>
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${eventType}
+          ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventCityName}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationInfo.name}" list="destination-list-1">
         <datalist id="destination-list-1">
         ${createDestinations(destinations)}
         </datalist>
@@ -138,10 +144,10 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(eventStartDate, EVENT_FORM_FORMAT)}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, EVENT_FORM_FORMAT)}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(eventEndDate, EVENT_FORM_FORMAT)}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, EVENT_FORM_FORMAT)}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -149,7 +155,7 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${eventPrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
       </div>
       ${formType === 'addForm' ? createAddButtonTemplate() : createEditButtonTemplate()}
     </header >
@@ -159,13 +165,13 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
       <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
-            ${createOffers(offers)}
+            ${createOffers(offersInfo)}
           </div>
       </section>
 
       <section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${destination.description}</p>
+        <p class="event__destination-description">${destinationInfo.description}</p>
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
@@ -183,13 +189,19 @@ const createEventFormTemplate = (formType, { offers, eventType, eventCityName, e
  * @class EventFormView
 */
 export default class EventFormView extends AbstractView {
-  #eventInfo = null;
-  #formType = null;
-  #destinations = null;
-  #handlerEditClick = null;
+  /**@type{EventObject} */
+  #event;
+  #eventInfo;
+  #formType;
+  #destinations;
+  #handlerEditClick;
 
-  constructor({ formType, eventInfo, destinations, onButtonClick }) {
+  /**
+   * @param {{formType: string, event: EventObject, eventInfo: EventInfo,  destinations: Array<Destination>, onButtonClick: function}} params
+   */
+  constructor({ formType, event, eventInfo, destinations, onButtonClick }) {
     super();
+    this.#event = event;
     this.#eventInfo = eventInfo;
     this.#formType = formType;
     this.#destinations = destinations;
@@ -200,9 +212,10 @@ export default class EventFormView extends AbstractView {
   }
 
   get template() {
-    return createEventFormTemplate(this.#formType, this.#eventInfo, this.#destinations);
+    return createEventFormTemplate(this.#formType, { ...this.#event, offersInfo: this.#eventInfo.offersInfo, destinationInfo: this.#eventInfo.destinationInfo }, this.#destinations);
   }
 
+  /**@param {Event} event*/
   #editClickHandler = (event) => {
     event.preventDefault();
     this.#handlerEditClick();

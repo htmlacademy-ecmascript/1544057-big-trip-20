@@ -10,18 +10,9 @@ import EventPresenter from './event-presenter.js';
 import FiltersPresenter from './filters-presenter.js';
 import TripInfoPresenter from './trip-info-presenter.js';
 
-/**
- * @typedef EventInfo
- * @type {Object}
- * @property {string} eventType
- * @property {string|undefined} eventCityName
- * @property {number} eventPrice
- * @property {boolean} isFavorite
- * @property {string} eventStartDate
- * @property {string} eventEndDate
- * @property {object} destination
- * @property {Array<object>} offers
-*/
+/**@typedef {import('../model/events-model.js').EventObject} EventObject */
+/**@typedef {import('../model/offers-model.js').Offer} Offer */
+
 export default class PagePresenter {
   /**@type{FiltersPresenter} */
   #filtersPresenter;
@@ -62,25 +53,31 @@ export default class PagePresenter {
     render(this.#eventsListComponent, eventsConstainerNode, RenderPosition.BEFOREEND);
 
     this.#tripEvents.forEach((event) => {
-      const destination = this.#destinationsModel.getById(event.destination);
-
-      /**@type {EventInfo}*/
-      const EventInfo = {
-        'eventType': event.type,
-        'eventCityName': destination?.name,
-        'eventPrice': event.basePrice,
-        'isFavorite': Boolean(event.isFavorite),
-        'eventStartDate': event.dateFrom,
-        'eventEndDate': event.dateTo,
-        destination,
-        'offers': event.offers.map((/** @type {object} */ offer) => this.#offersModel.getById(offer))
-      };
-
-      const eventPresenter = new EventPresenter({ eventsListContainer: this.#eventsListComponent.element, destinations: this.#destinationsModel.destinations });
-      eventPresenter.init(EventInfo);
+      const eventPresenter = new EventPresenter({
+        eventsListContainer: this.#eventsListComponent.element,
+        destinationsModel: this.#destinationsModel,
+        offersModel: this.#offersModel,
+        onDataChanged: this.#handleEventChange,
+        onModeChange: this.#handleModeChange
+      });
+      eventPresenter.init(event);
       this.#eventPresenters.set(event.id, eventPresenter);
     });
   }
+
+  /**
+   * @param {EventObject} updateEvent
+   */
+  #handleEventChange = (updateEvent) => {
+    // const eventInfo = this.#getEventInfo(updateEvent);
+    // this.#eventPresenters = updateItem(this.#eventPresenters, eventInfo);
+    // this.#eventsModel.events = updateItem(this.#eventsModel.events, updateEvent);
+    this.#eventPresenters.get(updateEvent.id).init(updateEvent);
+  };
+
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
 
   #clearEventPresenters() {
     this.#eventPresenters.forEach((eventPresenter) => eventPresenter.destroy());

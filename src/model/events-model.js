@@ -4,8 +4,8 @@ import EventModel from '../model/event-model';
 import { getRandomInteger } from '../utils/commons';
 
 /**
-  * @typedef {import('../mock/event-mock').EventObject} EventObject
-  */
+* @typedef {import('../mock/event-mock').EventObject} EventObject
+*/
 export default class EventsModel {
   #destinationsModel;
   #offersModel;

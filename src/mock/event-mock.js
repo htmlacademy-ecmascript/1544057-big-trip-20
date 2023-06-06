@@ -15,9 +15,9 @@ const eventId = getRandomIntGenerator();
  * @property {number} basePrice
  * @property {string} dateFrom
  * @property {string} dateTo
- * @property {?string} destination
+ * @property {string} destination
  * @property {boolean} isFavorite
- * @property {?Array<string>} offers
+ * @property {Array<string>} offers
  * @property {string} type
  */
 
@@ -38,9 +38,9 @@ export const generateEvent = () => {
     'basePrice': getRandomInteger(100, 1000),
     dateFrom,
     dateTo,
-    'destination': null,
+    'destination': '',
     'isFavorite': Boolean(getRandomInteger(0, 1)),
-    'offers': null,
+    'offers': [],
     'type': getRandomArrayElement(EVENT_TYPES)
   };
 };
