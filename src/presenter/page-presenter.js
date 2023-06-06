@@ -1,4 +1,3 @@
-//@ts-check
 import { Filters } from '../constants.js';
 import { render, RenderPosition } from '../framework/render.js';
 import DestinationsModel from '../model/destinations-model';
@@ -26,72 +25,65 @@ import TripInfoPresenter from './trip-info-presenter.js';
 export default class PagePresenter {
   /**@type{FiltersPresenter} */
   #filtersPresenter;
-  #eventsEmplyComponent = new EventsEmplyView(Filters.EVERYTHING);
+  #tripInfoPresenter;
+  #eventsEmplyComponent;
   #eventSortComponent = new EventSortView();
   #eventsListComponent = new EventsListView();
   #destinationsModel = new DestinationsModel();
   #offersModel = new OffersModel();
   #eventsModel = new EventsModel({ destinationsModel: this.#destinationsModel, offersModel: this.#offersModel });
   #tripEvents = [...this.#eventsModel.events];
+  /**@type{Map<string, EventPresenter>} */
+  #eventPresenters = new Map();
 
   init() {
-    this.#renderHeader();
-    this.#renderBody();
-  }
-
-  #renderHeader() {
-    if (this.#tripEvents.length > 0) {
-
-      const tripInfoContinerNode = document.querySelector('.trip-main');
-
-      if (tripInfoContinerNode instanceof HTMLElement) {
-        const tripInfoPresenter = new TripInfoPresenter({ container: tripInfoContinerNode, destinationsModel: this.#destinationsModel, offersModel: this.#offersModel, eventsModel: this.#eventsModel });
-        tripInfoPresenter.init();
-      }
-
-    }
-
     const filterContinerNode = document.querySelector('.trip-controls__filters');
+    const eventsConstainerNode = document.querySelector('.trip-events');
+    const tripInfoContinerNode = document.querySelector('.trip-main');
 
-    if (filterContinerNode instanceof HTMLElement) {
-      this.#filtersPresenter = new FiltersPresenter({ events: this.#tripEvents, FiltersContainer: filterContinerNode });
-      this.#filtersPresenter.init();
+    this.#filtersPresenter = new FiltersPresenter({ events: this.#tripEvents, FiltersContainer: filterContinerNode });
+    this.#tripInfoPresenter = new TripInfoPresenter({ container: tripInfoContinerNode, destinationsModel: this.#destinationsModel, offersModel: this.#offersModel, eventsModel: this.#eventsModel });
+    this.#eventsEmplyComponent = new EventsEmplyView(Filters.EVERYTHING);
+
+    this.#filtersPresenter.init();
+
+    if (this.#tripEvents.length > 0) {
+      this.#tripInfoPresenter.init();
+      this.#renderEventsList(eventsConstainerNode);
+
+      return;
     }
 
+    render(this.#eventsEmplyComponent, eventsConstainerNode, RenderPosition.BEFOREEND);
   }
 
-  #renderBody() {
-    const eventsConstainerNode = document.querySelector('.trip-events');
+  #renderEventsList(eventsConstainerNode) {
+    render(this.#eventSortComponent, eventsConstainerNode, RenderPosition.AFTERBEGIN);
+    render(this.#eventsListComponent, eventsConstainerNode, RenderPosition.BEFOREEND);
 
-    if (eventsConstainerNode instanceof HTMLElement) {
+    this.#tripEvents.forEach((event) => {
+      const destination = this.#destinationsModel.getById(event.destination);
 
-      if (this.#tripEvents.length > 0) {
-        render(this.#eventSortComponent, eventsConstainerNode, RenderPosition.AFTERBEGIN);
-        render(this.#eventsListComponent, eventsConstainerNode, RenderPosition.BEFOREEND);
+      /**@type {EventInfo}*/
+      const EventInfo = {
+        'eventType': event.type,
+        'eventCityName': destination?.name,
+        'eventPrice': event.basePrice,
+        'isFavorite': Boolean(event.isFavorite),
+        'eventStartDate': event.dateFrom,
+        'eventEndDate': event.dateTo,
+        destination,
+        'offers': event.offers.map((/** @type {object} */ offer) => this.#offersModel.getById(offer))
+      };
 
-        this.#tripEvents.forEach((event) => {
-          const destination = this.#destinationsModel.getById(event.destination);
+      const eventPresenter = new EventPresenter({ eventsListContainer: this.#eventsListComponent.element, destinations: this.#destinationsModel.destinations });
+      eventPresenter.init(EventInfo);
+      this.#eventPresenters.set(event.id, eventPresenter);
+    });
+  }
 
-          /**@type {EventInfo}*/
-          const EventInfo = {
-            'eventType': event.type,
-            'eventCityName': destination?.name,
-            'eventPrice': event.basePrice,
-            'isFavorite': Boolean(event.isFavorite),
-            'eventStartDate': event.dateFrom,
-            'eventEndDate': event.dateTo,
-            destination,
-            'offers': event.offers.map((/** @type {object} */ offer) => this.#offersModel.getById(offer))
-          };
-
-          const eventPresenter = new EventPresenter({ eventsListContainer: this.#eventsListComponent.element, destinations: this.#destinationsModel.destinations });
-          eventPresenter.init(EventInfo);
-        });
-
-        return;
-      }
-
-      render(this.#eventsEmplyComponent, eventsConstainerNode, RenderPosition.BEFOREEND);
-    }
+  #clearEventPresenters() {
+    this.#eventPresenters.forEach((eventPresenter) => eventPresenter.destroy());
+    this.#eventPresenters.clear();
   }
 }

@@ -1,5 +1,5 @@
 //@ts-check
-import { render, RenderPosition } from '../framework/render.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import TripInfoView from '../view/trip-info-view';
 
 export default class TripInfoPresenter {
@@ -48,7 +48,10 @@ export default class TripInfoPresenter {
     this.#tripInfoComponent = new TripInfoView({ eventsDates, eventsCity, tripCost });
 
     render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
+  }
 
+  destroy() {
+    remove(this.#tripInfoComponent);
   }
 }
 
