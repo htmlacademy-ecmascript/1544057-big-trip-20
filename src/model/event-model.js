@@ -1,3 +1,4 @@
+//@ts-check
 import { MAX_SELECT_OFFERS } from '../constants';
 import { generateEvent } from '../mock/event-mock';
 import { getRandomArrayElement, getRandomInteger } from '../utils/commons';
@@ -5,23 +6,25 @@ import { getRandomArrayElement, getRandomInteger } from '../utils/commons';
 /**
  * @typedef Params
  * @type {Object}
- * @property {import('./destinations-model').DestinationsCollection} destinationsModel
- * @property {Object} offersModel
+ * @property {import('./destinations-model').default} destinationsModel
+ * @property {import('./offers-model').default} offersModel
  */
 
 /**
  * Модель События
  */
 export default class EventModel {
-  /**@type {Object}*/
+  /**@type {import('./destinations-model').default}*/
   #destinationsModel;
-  /**@type {Object}*/
+  /**@type {import('./offers-model').default}*/
   #offersModel;
   /**@type {Array} */
   #offers;
   #event = generateEvent();
 
-  /** @param {Params} params*/
+  /**
+   * @param {Params} params
+   */
   constructor({ destinationsModel, offersModel }) {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
@@ -29,16 +32,7 @@ export default class EventModel {
   }
 
   /**
-    * @typedef EventObject
-    * @type {Object}
-    * @property {string} id
-    * @property {number} basePrice
-    * @property {string} dateFrom
-    * @property {string} dateTo
-    * @property {string} destination
-    * @property {number} isFavorite
-    * @property {Array<string>} offers
-    * @property {string} type
+    * @typedef {import('../mock/event-mock').EventObject} EventObject
     */
 
   /**

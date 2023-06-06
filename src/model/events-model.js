@@ -4,20 +4,11 @@ import EventModel from '../model/event-model';
 import { getRandomInteger } from '../utils/commons';
 
 /**
-  * @typedef EventObject
-  * @type {Object}
-  * @property {string} id
-  * @property {number} basePrice
-  * @property {string} dateFrom
-  * @property {string} dateTo
-  * @property {string} destination
-  * @property {number} isFavorite
-  * @property {Array<string>} offers
-  * @property {string} type
+  * @typedef {import('../mock/event-mock').EventObject} EventObject
   */
 export default class EventsModel {
-  #destinationsModel = null;
-  #offersModel = null;
+  #destinationsModel;
+  #offersModel;
   /** @type{Array<EventObject>} */
   #events;
 
@@ -48,6 +39,13 @@ export default class EventsModel {
    */
   get events() {
     return this.#events;
+  }
+
+  /**
+   * @param{Array<EventObject>} events
+   */
+  set events(events) {
+    this.#events = events;
   }
 
   /**

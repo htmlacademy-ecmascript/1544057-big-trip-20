@@ -14,11 +14,12 @@ export default class OffersModel {
 
   /**
    * @param {string} type
-   * @returns {Array<Offer>|undefined}
+   * @returns {Array<Offer>}
    */
   getByType(type) {
     const offersPerType = this.#offers.find((offer) => offer.type === type);
-    return offersPerType?.offers;
+    const result = offersPerType?.offers ? offersPerType.offers : [];
+    return result;
   }
 
   /**

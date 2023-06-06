@@ -9,21 +9,21 @@ import { EVENT_TYPES } from './constants-mock';
 const eventId = getRandomIntGenerator();
 
 /**
- * @typedef GenerateEventObject
+ * @typedef EventObject
  * @type {Object}
  * @property {string} id
  * @property {number} basePrice
  * @property {string} dateFrom
  * @property {string} dateTo
- * @property {null} destination
- * @property {number} isFavorite
- * @property {null} offers
- * @property {number} type
+ * @property {?string} destination
+ * @property {boolean} isFavorite
+ * @property {?Array<string>} offers
+ * @property {string} type
  */
 
 /**
  * Функция для генерации события
- * @returns {GenerateEventObject}
+ * @returns {EventObject}
  */
 export const generateEvent = () => {
   let day = getRandomInteger(1, 28);
@@ -39,7 +39,7 @@ export const generateEvent = () => {
     dateFrom,
     dateTo,
     'destination': null,
-    'isFavorite': getRandomInteger(0, 1),
+    'isFavorite': Boolean(getRandomInteger(0, 1)),
     'offers': null,
     'type': getRandomArrayElement(EVENT_TYPES)
   };
