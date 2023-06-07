@@ -30,17 +30,17 @@ const createFilters = (filters) => {
 
 };
 
-const createEventsFilterTemplate = (Filters) => `
+const createEventsFilterTemplate = (FilterTypes) => `
 <form class="trip-filters" action="#" method="get">
-    ${createFilters(Filters)}
+    ${createFilters(FilterTypes)}
     <button class="visually-hidden" type="submit">Accept filter</button>
 </form>`;
 
 export default class EventsFilterView extends AbstractView {
   #filters = null;
-  constructor(Filters) {
+  constructor(FilterTypes) {
     super();
-    this.#filters = Filters;
+    this.#filters = FilterTypes;
   }
 
   get template() {

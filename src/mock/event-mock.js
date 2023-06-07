@@ -6,8 +6,9 @@ import {
 } from '../utils/commons.js';
 import { EVENT_TYPES } from './constants-mock';
 
-const eventId = getRandomIntGenerator();
+/**@typedef {import('./offers-mock.js').Offer} Offer*/
 
+const eventId = getRandomIntGenerator();
 /**
  * @typedef EventObject
  * @type {Object}
@@ -17,7 +18,7 @@ const eventId = getRandomIntGenerator();
  * @property {string} dateTo
  * @property {string} destination
  * @property {boolean} isFavorite
- * @property {Array<string>} offers
+ * @property {Array<Offer>} offers
  * @property {string} type
  */
 
