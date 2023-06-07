@@ -2,37 +2,56 @@ import { EVENT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
 import AbstractView from '../../framework/view/abstract-stateful-view';
 import { calculateDuration, humanizeDate } from '../../utils/events';
 
+/**@typedef {import('../../model/offers-model').Offer} Offer*/
+/**
+ * @typedef {import('../../presenter/page-presenter').EventInfo} EventInfo
+ * @typedef {import('../../presenter/page-presenter').EventObject} EventObject
+ */
+/**
+ * Создает шашлон выбранного предложения
+ * @param {{title: string, price: number}} params
+ * @returns {HTMLElement} Element
+ */
 const createOffer = ({ title, price }) => `<li class="event__offer">
       <span class="event__offer-title">${title}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${price}</span>
     </li>`;
 
+/**
+ * Создает шаблон всех выбранных предложений
+ * @param {Array<Offer>} offers
+ * @returns {HTMLElement} Element
+ */
 const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join('\n');
 
-
-const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eventEndDate, eventPrice, isFavorite, offers }) => `
+/**
+ *
+ * @param {EventInfo} params
+ * @returns
+ */
+const createEventInfoTemplate = ({ offersInfo, destinationInfo, type, dateFrom, dateTo, basePrice, isFavorite }) => `
 <li class="trip-events__item">
   <div class="event">
-  <time class="event__date" datetime = "${eventStartDate}" > ${humanizeDate(eventStartDate, RENDER_DATE_FORMAT)}</time >
+  <time class="event__date" datetime = "${dateFrom}" > ${humanizeDate(dateFrom, RENDER_DATE_FORMAT)}</time >
   <div class="event__type">
-    <img class="event__type-icon" width="42" height="42" src="img/icons/${eventType}.png" alt="Event type icon">
+    <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
   </div>
-  <h3 class="event__title">${eventType} ${eventCityName}</h3>
+  <h3 class="event__title">${type} ${destinationInfo.name}</h3>
   <div class="event__schedule">
     <p class="event__time">
-      <time class="event__start-time" datetime="${eventStartDate}" > ${humanizeDate(eventStartDate, EVENT_INFO_FORMAT)}</time>
+      <time class="event__start-time" datetime="${dateFrom}" > ${humanizeDate(dateFrom, EVENT_INFO_FORMAT)}</time>
       &mdash;
-      <time class="event__end-time" datetime="${eventEndDate}" > ${humanizeDate(eventEndDate, EVENT_INFO_FORMAT)}</time>
+      <time class="event__end-time" datetime="${dateTo}" > ${humanizeDate(dateTo, EVENT_INFO_FORMAT)}</time>
     </p>
-    <p class="event__duration">${calculateDuration(eventStartDate, eventEndDate)}</p>
+    <p class="event__duration">${calculateDuration(dateFrom, dateTo)}</p>
   </div>
   <p class="event__price">
-    &euro;&nbsp;<span class="event__price-value">${eventPrice}</span>
+    &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
   </p>
   <h4 class="visually-hidden">Offers:</h4>
   <ul class="event__selected-offers">
-    ${renderOffers(offers)}
+    ${renderOffers(offersInfo)}
   </ul>
   <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
     <span class="visually-hidden">Add to favorite</span>
@@ -45,25 +64,43 @@ const createEventInfoTemplate = ({ eventType, eventCityName, eventStartDate, eve
 </li>
 `;
 
-
 export default class EventInfoView extends AbstractView {
-  #eventInfo = null;
-  #handlerEditClick = null;
+  #event;
+  #eventInfo;
+  #handlerEditClick;
+  #handleFavoriteClick;
 
-  constructor({ eventInfo, onButtonClick }) {
+  /**
+   * @param {{event: EventObject,eventInfo: EventInfo, onButtonClick: function, onFavoriteClick: function}} params
+   */
+  constructor({ event, eventInfo, onButtonClick, onFavoriteClick }) {
     super();
+    this.#event = event;
     this.#eventInfo = eventInfo;
     this.#handlerEditClick = onButtonClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelector('.event__favorite-btn ').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
-    return createEventInfoTemplate(this.#eventInfo);
+    return createEventInfoTemplate({ ...this.#event, destinationInfo: this.#eventInfo.destinationInfo, offersInfo: this.#eventInfo.offersInfo });
   }
 
+  /**
+   * @param {Event} event
+   */
   #editClickHandler = (event) => {
     event.preventDefault();
     this.#handlerEditClick();
+  };
+
+  /**
+   * @param {Event} event
+   */
+  #favoriteClickHandler = (event) => {
+    event.preventDefault();
+    this.#handleFavoriteClick();
   };
 }

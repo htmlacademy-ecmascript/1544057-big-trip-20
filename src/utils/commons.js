@@ -52,9 +52,21 @@ const checkEcsKeydownPress = (event, func) => {
   }
 };
 
+/**@typedef {import('../mock/event-mock').EventObject} EventObject */
+
+/**
+ * @param {Array<object>} items
+ * @param {EventObject} update
+ * @returns {Array<object>} new array of objects
+ */
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
 export {
   checkEcsKeydownPress,
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,
+  updateItem,
 };
