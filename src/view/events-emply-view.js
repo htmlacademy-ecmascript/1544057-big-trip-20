@@ -1,11 +1,11 @@
-import { Filters } from '../constants';
+import { FilterTypes } from '../constants';
 import AbstractView from '../framework/view/abstract-stateful-view';
 
 const Texts = {
-  [Filters.EVERYTHING]: 'Click New Event to create your first point',
-  [Filters.PAST]: 'There are no past events now',
-  [Filters.PRESENT]: 'There are no present events now',
-  [Filters.FUTURE]: 'There are no future events now'
+  [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterTypes.PAST]: 'There are no past events now',
+  [FilterTypes.PRESENT]: 'There are no present events now',
+  [FilterTypes.FUTURE]: 'There are no future events now'
 };
 
 const createEventsEmplyTemplate = (selectFilter) => `

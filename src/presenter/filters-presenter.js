@@ -2,7 +2,7 @@
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
-import { Filters } from '../constants.js';
+import { FilterTypes } from '../constants.js';
 import { render, RenderPosition } from '../framework/render.js';
 import EventsFilterView from '../view/events-filter-view.js';
 
@@ -41,19 +41,19 @@ export default class FiltersPresenter {
     this.#pastEvents = this.#tripEvents.filter((event) => dayjs().isAfter(dayjs(event.dateTo)));
 
     this.#filterConfig = {
-      [Filters.EVERYTHING]: {
+      [FilterTypes.EVERYTHING]: {
         checked: true,
         disabled: this.#tripEvents.length <= 0,
       },
-      [Filters.FUTURE]: {
+      [FilterTypes.FUTURE]: {
         checked: false,
         disabled: this.#futureEvents.length <= 0,
       },
-      [Filters.PAST]: {
+      [FilterTypes.PAST]: {
         checked: false,
         disabled: this.#pastEvents.length <= 0,
       },
-      [Filters.PRESENT]: {
+      [FilterTypes.PRESENT]: {
         checked: false,
         disabled: this.#presentEvents.length <= 0,
       },
