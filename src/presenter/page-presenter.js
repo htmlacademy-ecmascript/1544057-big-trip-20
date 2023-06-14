@@ -113,6 +113,7 @@ export default class PagePresenter {
         onDataChanged: this.#handleEventChange,
         onModeChange: this.#handleModeChange
       });
+
       eventPresenter.init(event);
       this.#eventPresenters.set(event.id, eventPresenter);
     });

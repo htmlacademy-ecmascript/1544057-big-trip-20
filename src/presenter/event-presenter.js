@@ -1,5 +1,3 @@
-//@ts-check
-import { FormTypes } from '../constants.js';
 import { remove, render, replace } from '../framework/render.js';
 import { checkEcsKeydownPress } from '../utils/commons.js';
 import EventFormView from '../view/event/event-form-view.js';
@@ -8,19 +6,27 @@ import EventInfoView from '../view/event/event-info-view.js';
 /** Пересентер события */
 /**@typedef {import('./page-presenter').EventObject}  EventObject*/
 /**@typedef {import('../model/offers-model.js').Offer} Offer */
+/**@typedef {import('../model/destinations-model.js').Destination} Destination */
+/**@typedef {import('../model/destinations-model.js').default}  DestinationsModel*/
+/**@typedef {import('../model/offers-model.js').default}  OffersModel*/
+/**
+ * @typedef ExtendedInfo
+ * @type {object}
+ * @property {Destination | undefined} destination
+ * @property {Array<Offer|undefined>|undefined} offers
+*/
 /**
  * @typedef EventInfo
  * @type {Object}
- * @property {import('../model/destinations-model.js').Destination | undefined} destinationInfo
- * @property {Array<Offer|undefined>|undefined} offersInfo
+ * @property {EventObject} event
+ * @property {ExtendedInfo} extendedInfo
 */
-/**@typedef {import('../model/destinations-model.js').default}  DestinationsModel*/
-/**@typedef {import('../model/offers-model.js').default}  OffersModel*/
 
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
 };
+
 export default class EventPresenter {
   #eventsListContainer;
   #offersModel;
@@ -56,7 +62,8 @@ export default class EventPresenter {
 
     this.#eventInfoComponent = new EventInfoView({
       event: this.#event,
-      eventInfo: this.#getEventInfo(this.#event),
+      destinations: this.#destinationsModel.destinations,
+      offersByTypes: this.#offersModel.offers,
       onButtonClick: () => {
         this.#replaceEventToForm();
         document.addEventListener('keydown', this.#ecsKeydownHandler);
@@ -66,9 +73,8 @@ export default class EventPresenter {
 
     this.#eventFormComponent = new EventFormView({
       event: this.#event,
-      formType: FormTypes.EDIT_FORM,
-      eventInfo: this.#getEventInfo(this.#event),
       destinations: this.#destinationsModel.destinations,
+      offersByTypes: this.#offersModel.offers,
       onButtonClick: () => {
         this.#replaceFormToInfo();
       }
@@ -95,22 +101,6 @@ export default class EventPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToInfo();
     }
-  }
-
-  /**
-  * @param {EventObject} event
-  * @returns {EventInfo} Event
-  */
-  #getEventInfo(event) {
-    const destinationInfo = this.#destinationsModel.getById(event.destination);
-
-    /**@type {EventInfo}*/
-    const EventInfo = {
-      destinationInfo,
-      offersInfo: event.offers.map((/** @type {object} */ offer) => this.#offersModel.getById(offer))
-    };
-
-    return EventInfo;
   }
 
   /** @param {KeyboardEvent} event*/

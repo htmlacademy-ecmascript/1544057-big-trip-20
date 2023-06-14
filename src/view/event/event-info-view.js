@@ -1,12 +1,20 @@
 import { EVENT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
-import AbstractView from '../../framework/view/abstract-stateful-view';
+import AbstractView from '../../framework/view/abstract-view';
 import { calculateDuration, humanizeDate } from '../../utils/events';
 
-/**@typedef {import('../../model/offers-model').Offer} Offer*/
 /**
- * @typedef {import('../../presenter/page-presenter').EventInfo} EventInfo
+ * @typedef {import('../../presenter/event-presenter').EventInfo} EventInfo
  * @typedef {import('../../presenter/page-presenter').EventObject} EventObject
+ * @typedef {import('../../model/offers-model').Offer} Offer
+ * @typedef {import('../../presenter/event-presenter').Destination} Destination
+ * /
+
+/**
+ * @typedef ExtendedEvent
+ * @type {object}
+ * @property {object}
  */
+
 /**
  * Создает шашлон выбранного предложения
  * @param {{title: string, price: number}} params
@@ -30,14 +38,14 @@ const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join(
  * @param {EventInfo} params
  * @returns
  */
-const createEventInfoTemplate = ({ offersInfo, destinationInfo, type, dateFrom, dateTo, basePrice, isFavorite }) => `
+const createEventInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, basePrice, isFavorite }) => `
 <li class="trip-events__item">
   <div class="event">
   <time class="event__date" datetime = "${dateFrom}" > ${humanizeDate(dateFrom, RENDER_DATE_FORMAT)}</time >
   <div class="event__type">
     <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
   </div>
-  <h3 class="event__title">${type} ${destinationInfo.name}</h3>
+  <h3 class="event__title">${type} ${destination.name}</h3>
   <div class="event__schedule">
     <p class="event__time">
       <time class="event__start-time" datetime="${dateFrom}" > ${humanizeDate(dateFrom, EVENT_INFO_FORMAT)}</time>
@@ -51,7 +59,7 @@ const createEventInfoTemplate = ({ offersInfo, destinationInfo, type, dateFrom, 
   </p>
   <h4 class="visually-hidden">Offers:</h4>
   <ul class="event__selected-offers">
-    ${renderOffers(offersInfo)}
+    ${renderOffers(offers)}
   </ul>
   <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
     <span class="visually-hidden">Add to favorite</span>
@@ -66,17 +74,19 @@ const createEventInfoTemplate = ({ offersInfo, destinationInfo, type, dateFrom, 
 
 export default class EventInfoView extends AbstractView {
   #event;
-  #eventInfo;
+  #destinations;
+  #offersByTypes;
   #handlerEditClick;
   #handleFavoriteClick;
 
   /**
-   * @param {{event: EventObject,eventInfo: EventInfo, onButtonClick: function, onFavoriteClick: function}} params
+   * @param {{event: EventInfo, destinations: Array<Destination>, offersByType:  onButtonClick: function, onFavoriteClick: function}} params
    */
-  constructor({ event, eventInfo, onButtonClick, onFavoriteClick }) {
+  constructor({ event, destinations, offersByTypes, onButtonClick, onFavoriteClick }) {
     super();
     this.#event = event;
-    this.#eventInfo = eventInfo;
+    this.#destinations = destinations;
+    this.#offersByTypes = offersByTypes;
     this.#handlerEditClick = onButtonClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -85,20 +95,40 @@ export default class EventInfoView extends AbstractView {
   }
 
   get template() {
-    return createEventInfoTemplate({ ...this.#event, destinationInfo: this.#eventInfo.destinationInfo, offersInfo: this.#eventInfo.offersInfo });
+    return createEventInfoTemplate(this.#parseEvent(this.#event));
   }
 
   /**
-   * @param {Event} event
+   * Parses an event object and extracts the relevant information.
+   *
+   * @param {EventInfo} event - The event object containing extended event information.
+   * @returns {Object} - The parsed event object with destination and offers properties.
    */
+  #parseEvent(event) {
+    const offersByType = this.#offersByTypes.get(event.type);
+    const offers = event.offers.map((offerId) => {
+      const result = offersByType.find((offer) => offer.id === offerId);
+      return result ? result : null;
+    });
+
+    return {
+      ...event,
+      offers: offers.filter(Boolean),
+      destination: this.#destinations.get(event.destination),
+    };
+  }
+
+  /**
+ * @param {Event} event
+ */
   #editClickHandler = (event) => {
     event.preventDefault();
     this.#handlerEditClick();
   };
 
   /**
-   * @param {Event} event
-   */
+ * @param {Event} event
+ */
   #favoriteClickHandler = (event) => {
     event.preventDefault();
     this.#handleFavoriteClick();

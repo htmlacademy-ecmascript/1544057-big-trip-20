@@ -28,7 +28,7 @@ export default class EventModel {
   constructor({ destinationsModel, offersModel }) {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
-    this.#offers = this.#offersModel.getByType(this.#event.type);
+    this.#offers = this.#offersModel.offers.get((this.#event.type));
   }
 
   /**
@@ -39,8 +39,8 @@ export default class EventModel {
    * @returns {EventObject}
    */
   get event() {
-    this.#event.destination = getRandomArrayElement(this.#destinationsModel.destinations).id;
-    this.#event.offers = Array.from({ length: getRandomInteger(1, MAX_SELECT_OFFERS) }, () => getRandomArrayElement(this.#offers).id);
+    this.#event.destination = getRandomArrayElement([...this.#destinationsModel.destinations.values()]).id;
+    this.#event.offers = [...this.#offers].splice(0, getRandomInteger(1, MAX_SELECT_OFFERS)).map((offer) => offer.id);
     return this.#event;
   }
 }
