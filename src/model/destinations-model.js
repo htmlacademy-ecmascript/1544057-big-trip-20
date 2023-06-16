@@ -3,6 +3,7 @@ import { generateDestinations } from '../mock/destinations-mock';
 
 /**
  *@typedef { import('../mock/destinations-mock').Destination} Destination
+ *@typedef { Map<string, Destination>} Destinations
  */
 export default class DestinationsModel {
   /** @type {Map<string, Destination>} */
@@ -16,7 +17,7 @@ export default class DestinationsModel {
   }
 
   /**
-   * @returns {Map<string, Destination>} Destinations
+   * @returns {Destinations} Destinations map
    */
   get destinations() {
     return this.#destinations;

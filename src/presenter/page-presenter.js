@@ -104,7 +104,9 @@ export default class PagePresenter {
    */
   #renderEvents() {
     render(this.#eventsListComponent, this.#eventsConstainerNode, RenderPosition.BEFOREEND);
+
     this.#sortEvents();
+
     this.#sortedEvents.forEach((event) => {
       const eventPresenter = new EventPresenter({
         eventsListContainer: this.#eventsListComponent.element,

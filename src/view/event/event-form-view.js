@@ -1,33 +1,51 @@
 //@ts-check
-import { EVENT_FORM_FORMAT, FormTypes } from '../../constants.js';
+import { EVENT_FORM_FORMAT } from '../../constants.js';
 import AbstractStatefulView
   from '../../framework/view/abstract-stateful-view.js';
-import { EVENT_TYPES } from '../../mock/constants-mock.js';
-import { getRandomInteger } from '../../utils/commons.js';
+import { findItemById, updateItem } from '../../utils/commons.js';
 import { humanizeDate } from '../../utils/events.js';
 
 /**
  * @typedef {import('../../model/offers-model.js').Offer} Offer
- * @typedef {import('../../model/destinations-model.js').Destination} Destination
- * @typedef {import('../../model/events-model.js').EventObject} EventObject
- * @typedef {import('../../presenter/event-presenter.js').EventInfo} EventInfo
- * @typedef {import('../../presenter/event-presenter.js').ExtendedInfo} ExtendedInfo
-*/
+ * @typedef {import('../../model/offers-model.js').OffersByType} OffersByType
+ * @typedef {import('../../model/destinations-model.js').Destinations} Destinations
+ * @typedef { import('../../model/events-model.js').EventObject } EventObject
+ * @typedef { import('./event-info-view.js').Destination } Destination
+ */
 
 /**
- * BlankEventInfo
+ * @typedef State
+ * @type { object } State
+ * @property { ?string } id
+ * @property { string } type
+ * @property { boolean } isEditForm
+ * @property { boolean } isFavorite
+ * @property { ?number } basePrice
+ * @property { ?string } dateFrom
+ * @property { ?string } dateTo
+ * @property { Destination | false } destination
+ * @property { Array<Offer>|array} offers
+ * @property { Array<string>} availableTypes
  */
-const BLANK_EVENT_INFO = {
+
+const BLANK_EVENT = {
+  id: null,
   basePrice: null,
   dateFrom: null,
   dateTo: null,
   destination: null,
   isFavorite: false,
-  offers: [],
-  type: EVENT_TYPES[0]
+  offers: null,
+  type: null
 };
 
-const createEditButtonTemplate = () => `
+/**
+ * Создает кнопки для опеределенной формы
+ * @param {boolean} isEditForm
+ * @returns {string} Возвращает шаблон кнопок под вид формы
+ */
+function createButton(isEditForm) {
+  const createEditButtonTemplate = () => `
   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
   <button class="event__reset-btn" type="reset">Delete</button>
   <button class="event__rollup-btn" type="button">
@@ -35,40 +53,26 @@ const createEditButtonTemplate = () => `
   </button>
 `;
 
-const createAddButtonTemplate = () => `
+  const createAddButtonTemplate = () => `
   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
   <button class="event__reset-btn" type="reset">Cancel</button>
 `;
 
+  return isEditForm ? createEditButtonTemplate() : createAddButtonTemplate();
+}
+
 /**
  *
- * @param {string} formType
+ * @param {Array<Object>} offersByTypes Все предложения
  * @returns {string}
  */
-const createButton = (formType) => formType === FormTypes.ADD_FORM ? createAddButtonTemplate() : createEditButtonTemplate();
-
-/**
- * @param {string} photoSrc Путь к фотографии
- * @returns {string}
- */
-const createPhoto = (photoSrc) => `<img class="event__photo" src="${photoSrc}" alt="Event photo">`;
-
-const createPhotos = () => {
-  const photosLength = getRandomInteger(1, 5);
-  const photos = [];
-
-  for (let i = 1; i <= photosLength; i++) {
-    photos.push(createPhoto(`img/photos/${i}.jpg`));
-  }
-  return photos.join('\n');
-};
-
-/**
+function createOffersSection(offersByTypes) {
+  /**
  * @param {Offer} offer
  * @param {boolean} checked
  * @returns {string}
  */
-const createOffer = (offer, checked = false) => `
+  const createOffer = (offer, checked = false) => `
 <div class="event__offer-selector">
   <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" ${checked ? 'checked' : ''}>
   <label class="event__offer-label" for="${offer.id}">
@@ -78,30 +82,20 @@ const createOffer = (offer, checked = false) => `
   </label>
 </div>`;
 
-/**
- *
- * @param {Array<Offer>} offers Выбранные предложения
- * @param {Array<Offer>} offersByTypes Все предложения
- * @returns {string}
- */
-const createOffers = (offers, offersByTypes) => {
-  const offerTemplates = offersByTypes.map((offer) => {
-    if (offers.includes(offer)) {
+  const getOffersTemplate = () => offersByTypes.map((offer) => {
+    if (offer.selected) {
       return createOffer(offer, true);
     }
     return createOffer(offer);
-  });
+  }).join('\n');
 
-  const offersTemplate = `
-  <section class="event__section  event__section--offers">
-      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-      <div class="event__available-offers">
-        ${offerTemplates.join('\n')}
-      </div>
-  </section>`;
-
-  return offersTemplate;
-};
+  return offersByTypes ? `<section class="event__section  event__section--offers">
+                              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                              <div class="event__available-offers">
+                                ${getOffersTemplate()}
+                              </div>
+                          </section>` : '';
+}
 
 /**
  *
@@ -110,32 +104,49 @@ const createOffers = (offers, offersByTypes) => {
  * @param {Map} destinations
  * @returns {string}
  */
-const createDestinationsSelect = (type, eventDestination, destinations) => {
+function createDestinationsSelect(type, eventDestination, destinations) {
   const destinationSlelectTemplates = [];
+  const cityName = eventDestination ? eventDestination.name : ' ';
 
-  destinations.forEach((destination) => destinationSlelectTemplates.push(`<option value="${destination.name}"></option>`));
+  destinations.forEach((destination) => {
+    destinationSlelectTemplates.push(`<option value="${destination.name}"></option>`);
+  });
 
   const dedtinationSelectTemplate = `
   <div class="event__field-group  event__field-group--destination">
     <label class="event__label  event__type-output" for="event-destination-1">
       ${type}
     </label>
-    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventDestination.name}" list="destination-list-1">
+    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityName}" list="destination-list-1">
     <datalist id="destination-list-1">
       ${destinationSlelectTemplates.join('\n')}
     </datalist>
   </div>`;
 
   return dedtinationSelectTemplate;
-};
+}
 
 /**
  * Создает шаблон описания места назначения
  * @param {Destination} destination
  * @returns {string}
  */
-const createDestination = (destination) => {
-  const destinationsTemplate = `<section class="event__section  event__section--destination" >
+function createDestinationSection(destination) {
+  /**
+ * @param {string} photoSrc Путь к фотографии
+ * @returns {string}
+ */
+  const createPhoto = (photoSrc, description) => `<img class="event__photo" src="${photoSrc}" alt="${description}">`;
+
+
+  const createPhotos = () => {
+
+    const photos = destination.pictures.map((photo) => createPhoto(photo.src, photo.description));
+
+    return photos.join('\n');
+  };
+
+  const getdestinationsTemplate = () => `<section class="event__section  event__section--destination" >
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
         <p class="event__destination-description">${destination.description}</p>
 
@@ -146,80 +157,96 @@ const createDestination = (destination) => {
         </div>
       </section > `;
 
-  return destinationsTemplate;
-};
+  return destination ? getdestinationsTemplate() : '';
+}
 
 /**
- *
- * @param {string} type
- * @param {Boolean} checked
- * @returns
+ * @param {string} selectType
+ * @param {Array<string>} types
+ * @returns {String}
  */
-const createEventType = (type, checked = false) => {
-  const LowerCaseType = type.toLowerCase();
-  const labelText = type.charAt(0).toUpperCase() + type.slice(1);
-  return `
+function createEventTypes(selectType, types) {
+  /**
+   * @param {string} type
+   * @param {Boolean} checked
+   * @returns
+   */
+  function createEventType(type, checked = false) {
+    const LowerCaseType = type.toLowerCase();
+    const labelText = type.charAt(0).toUpperCase() + type.slice(1);
+    return `
   <div class="event__type-item" >
     <input id="event-type-${LowerCaseType}-1" class="event__type-input visually-hidden" type="radio" name="event-type" value="${LowerCaseType}" ${checked ? ' checked' : ''}>
       <label class="event__type-label event__type-label--${LowerCaseType}" for="event-type-${LowerCaseType}-1">${labelText}</label>
     </div>
 `;
-};
-
-/**
- * @param {Array<string>} types
- * @returns {String}
- */
-const createEventTypesSelect = (selectType, types) => {
-  const typeTemplates = [];
-
-  for (const type of types) {
-    if (type === selectType) {
-      typeTemplates.push(createEventType(type, true));
-      continue;
-    }
-    typeTemplates.push(createEventType(type));
   }
 
-  const typesSelectTemplate = `
-  <div class="event__type-list" >
-    <fieldset class="event__type-group">
-      <legend class="visually-hidden">Event type</legend>
-      ${typeTemplates.join('\n')}
-    </fieldset>
-  </div > `;
-  return typesSelectTemplate;
-};
+  /**
+   * @returns {String}
+   */
+  function createEventTypesSelect() {
+    const typeTemplates = [];
 
-const createEventTypes = (selectType, types) => {
-  const eventTypesTemplate = `<div class="event__type-wrapper" >
-        <label class="event__type  event__type-btn" for="event-type-toggle-1">
-          <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${selectType}.png" alt="Event type icon">
-        </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
-        ${createEventTypesSelect(selectType, types)}
-      </div>`;
+    for (const type of types) {
+      if (type === selectType) {
+        typeTemplates.push(createEventType(type, true));
+        continue;
+      }
+      typeTemplates.push(createEventType(type));
+    }
+
+    const typesSelectTemplate = `
+    <div class="event__type-list" >
+      <fieldset class="event__type-group">
+        <legend class="visually-hidden">Event type</legend>
+        ${typeTemplates.join('\n')}
+      </fieldset>
+    </div >`;
+    return typesSelectTemplate;
+  }
+
+  const eventTypesTemplate = `
+    <div class="event__type-wrapper" >
+      <label class="event__type  event__type-btn" for="event-type-toggle-1">
+        <span class="visually-hidden">Choose event type</span>
+        <img class="event__type-icon" width="17" height="17" src="img/icons/${selectType}.png" alt="Event type icon">
+      </label>
+
+      <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+      ${createEventTypesSelect()}
+    </div>`;
+
   return eventTypesTemplate;
-};
+}
 
 /**
  * @param { Object } info object
  * @returns {string} Event template
  */
-const createEventFormTemplate = ({ formType, offers, type, dateFrom, dateTo, basePrice, destination, destinations, offersByTypes }) => `
+const createEventFormTemplate = ({ isEditForm, offers, type, availableTypes, dateFrom, dateTo, basePrice, destination, destinations }) => {
+  const eventTypesTemplate = createEventTypes(type, availableTypes);
+  const destinationsSelectTemplate = createDestinationsSelect(type, destination, destinations);
+  const buttonsTemplate = createButton(isEditForm);
+  const startTime = humanizeDate(dateFrom, EVENT_FORM_FORMAT);
+  const endTime = humanizeDate(dateTo, EVENT_FORM_FORMAT);
+  const offersSectionTemplate = createOffersSection(offers);
+  const destinationSectionTemplate = createDestinationSection(destination);
+  const eventPrice = basePrice ? basePrice : '';
+
+  return `
 <li class="trip-events__item" >
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
-      ${createEventTypes(type, EVENT_TYPES)}
-      ${createDestinationsSelect(type, destination, destinations)}
+      ${eventTypesTemplate}
+      ${destinationsSelectTemplate}
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeDate(dateFrom, EVENT_FORM_FORMAT)}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
           &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeDate(dateTo, EVENT_FORM_FORMAT)}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -227,73 +254,194 @@ const createEventFormTemplate = ({ formType, offers, type, dateFrom, dateTo, bas
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${eventPrice}">
       </div>
 
-      ${createButton(formType)}
+      ${buttonsTemplate}
     </header>
 
     <section class="event__details">
-      ${createOffers(offers, offersByTypes.get(type))}
-      ${createDestination(destination)}
+      ${offersSectionTemplate}
+      ${destinationSectionTemplate}
     </section>
   </form>
 </li>`;
+};
 
 
 /** Класс представления формы изменения или добавления точки путешесвия
-       * @class EventFormView
-      */
+         * @class EventFormView
+        */
 export default class EventFormView extends AbstractStatefulView {
   #event;
-  #offersByTypes;
   #destinations;
-  #handlerEditClick;
-
-  constructor({ event = BLANK_EVENT_INFO, destinations, offersByTypes, onButtonClick }) {
-    super();
-    this.#destinations = destinations;
-    this.#offersByTypes = offersByTypes;
-    this.#event = event;
-    this.#handlerEditClick = onButtonClick;
-
-    this.element.querySelector('.event__save-btn ').addEventListener('click', this.#editClickHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
-  }
-
-  get template() {
-    return createEventFormTemplate({ ...EventFormView.pareseEventToState(this.#event, this.#offersByTypes, this.#destinations), destinations: this.#destinations, offersByTypes: this.#offersByTypes });
-  }
+  #offersByTypes;
+  #handlerCancelClick;
+  #handlerSubmitClick;
+  #destinationsByCities;
 
   /**
-   * @param {EventObject} event
-   * @param {Map} offersByTypes
-   * @returns
+   * Конструктор компонента формы события
+   * @param {{event: EventObject | BLANK_EVENT, destinations: Destinations, offersByTypes: OffersByType, onCancelClick: function, onSubmitClick: function}} params
    */
-  static pareseEventToState(event, offersByTypes, destinations) {
-    const offersByType = offersByTypes.get(event.type);
-    const offers = event.offers.map((offerId) => {
-      const result = offersByType.find((offer) => offer.id === offerId);
-      return result ? result : null;
-    });
+  constructor({ event = BLANK_EVENT, destinations, offersByTypes, onCancelClick, onSubmitClick }) {
+    super();
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#destinationsByCities = new Map();
+    this.#offersByTypes = offersByTypes;
+    this._setState(EventFormView.parseEventToState(this.#event, this.#offersByTypes, this.#destinations));
+    this.#handlerCancelClick = onCancelClick;
+    this.#handlerSubmitClick = onSubmitClick;
 
-    return {
-      ...event,
-      destination: destinations.get(event.destination),
-      offers: offers
-    };
+    [...this.#destinations.values()].forEach((destination) => this.#destinationsByCities.set(destination.name, { ...destination }));
+
+    this._restoreHandlers();
   }
 
-  static pareseStateToEvent(state) {
-    const event = {
-      ...state
-    };
 
+  get template() {
+    return createEventFormTemplate({ ...this._state, destinations: this.#destinations });
+  }
+
+  resetState = () => {
+    const prevState = EventFormView.parseEventToState(this.#event, this.#offersByTypes, this.#destinations);
+    this.updateElement({ ...prevState });
+  };
+
+  _restoreHandlers() {
+    const buttons = this.element.querySelectorAll('button');
+    buttons.forEach((button) => button.addEventListener('click', this.#buttosClickHandler));
+
+    const inputs = this.element.querySelectorAll('input');
+    inputs.forEach((field) => field.addEventListener('change', this.#inputsChangeHandler));
+
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#typeChangeHandler);
+  }
+
+  /**Обратывает отмену сохранения*/
+  #cancelSaveClickHandler() {
+    this.resetState();
+    this.#handlerCancelClick();
   }
 
   /**@param {Event} event*/
-  #editClickHandler = (event) => {
+  #buttosClickHandler = (event) => {
     event.preventDefault();
-    this.#handlerEditClick();
+    switch (event.target.className) {
+      case 'event__reset-btn':
+        this.#cancelSaveClickHandler();
+        break;
+      case 'event__save-btn  btn  btn--blue':
+        this.#handlerSubmitClick(EventFormView.parseStateToEvent(this._state));
+        break;
+      case 'event__rollup-btn':
+        this.#cancelSaveClickHandler();
+        break;
+      default:
+    }
   };
+
+  /**@param {Event} event*/
+  #inputsChangeHandler = (event) => {
+    event.preventDefault();
+    const fileldType = event.target.className.split('--')[1] || event.target.className;
+    switch (fileldType) {
+      case 'destination':
+        this.updateElement({ ...this._state, destination: this.#destinationsByCities.get(event.target.value) || false });
+        break;
+      case 'time':
+        break;
+      case 'price':
+        this._setState({ ...this._state, basePrice: event.target.value });
+        break;
+      case 'event__offer-checkbox  visually-hidden':
+        this._setState({ ...this._state, offers: updateItem(this._state.offers, updateOfferSelect(this._state.offers, event.target.id)) });
+        break;
+      default:
+    }
+
+    /**
+     * Обновляет определенный offer
+     * @param {string} id offer id
+     * @param {Array<Offer>} offers
+     */
+    function updateOfferSelect(offers, id) {
+      const offer = findItemById(offers, id);
+
+      return { ...offer, selected: !offer.selected };
+    }
+  };
+
+  /**@param {Event} event*/
+  #typeChangeHandler = (event) => {
+    const value = event.target.value;
+    const type = value.charAt(0).toUpperCase() + value.slice(1);
+    const offers = this.#offersByTypes.get(type);
+    this.updateElement({ ...this._state, type, offers });
+  };
+
+  /**
+   * @param {EventObject | BLANK_EVENT} event
+   * @param {OffersByType} offersByTypes
+   * @param {Destinations} destinations
+   * @returns {State}
+   */
+  static parseEventToState(event, offersByTypes, destinations) {
+    const availableTypes = Array.from(offersByTypes.keys());
+
+    const evenType = event.type || availableTypes[0];
+    const eventOffers = event.offers || [];
+
+    const offersByType = offersByTypes.get(evenType) || [];
+
+    const offers = offersByType.map((/** @type {Offer} */ offer) => ({
+      ...offer,
+      selected: eventOffers.includes(offer.id)
+    }));
+
+    return {
+      ...event,
+      type: evenType,
+      isEditForm: !!event.id,
+      destination: event.destination ? destinations.get(event.destination) : false,
+      offers: offers,
+      availableTypes
+    };
+  }
+
+  /**
+   * @param {State} state
+   * @returns {EventObject}
+   */
+  static parseStateToEvent(state) {
+    const {
+      id,
+      basePrice,
+      dateFrom,
+      dateTo,
+      destination,
+      isFavorite,
+      offers,
+      type
+    } = state;
+
+    const eventOffers = offers ? offers.filter((offer) => offer.selected).map((offer) => offer.id) : [];
+
+    const event = {
+      id: id ? id : '',
+      basePrice: basePrice || 0,
+      dateFrom: dateFrom || '',
+      dateTo: dateTo || '',
+      destination: destination ? destination.id : '',
+      isFavorite,
+      offers: eventOffers,
+      type: type || ''
+    };
+
+    return event;
+  }
 }
+
+

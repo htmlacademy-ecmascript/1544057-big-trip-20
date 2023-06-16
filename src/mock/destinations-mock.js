@@ -25,7 +25,7 @@ const generatePicture = () => ({
  * @property {Id} id
  * @property {string} description
  * @property {string} name
- * @property {Array<HTMLElement>} pictures
+ * @property {Array<string>} pictures
  */
 
 /**

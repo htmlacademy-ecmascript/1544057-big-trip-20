@@ -1,6 +1,5 @@
 //@ts-check
 /**
- *
  * @param {number} [min = 1] minimum value
  * @param {number} [max = 100] maximum value
  * @returns {number} random number
@@ -41,11 +40,11 @@ const getRandomIntGenerator = (min = 1, max = 100) => {
 };
 
 /**
- *
+ * Проверяет объект KeyboardEvent на нажатие Esc
  * @param {KeyboardEvent} event
  * @param {function} func
  */
-const checkEcsKeydownPress = (event, func) => {
+const checkEscKeydownPress = (event, func) => {
   if (event.key === 'Escape') {
     event.preventDefault();
     func();
@@ -55,16 +54,28 @@ const checkEcsKeydownPress = (event, func) => {
 /**@typedef {import('../mock/event-mock').EventObject} EventObject */
 
 /**
+ * Обновляет определенный элемент в массиве, по id элемента
  * @param {Array<object>} items
- * @param {EventObject} update
+ * @param {any} update
  * @returns {Array<object>} new array of objects
  */
 function updateItem(items, update) {
   return items.map((item) => item.id === update.id ? update : item);
 }
 
+/**
+ * Поиск элемента в массиве, по id элемента
+ * @param {Array} array
+ * @param {any} id
+ * @returns {any} finded object
+ */
+function findItemById(array, id) {
+  return array.find((/** @type {{ id: any; }} */ item) => item.id === id);
+}
+
 export {
-  checkEcsKeydownPress,
+  checkEscKeydownPress,
+  findItemById,
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,

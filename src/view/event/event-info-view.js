@@ -80,14 +80,14 @@ export default class EventInfoView extends AbstractView {
   #handleFavoriteClick;
 
   /**
-   * @param {{event: EventInfo, destinations: Array<Destination>, offersByType:  onButtonClick: function, onFavoriteClick: function}} params
+   * @param {{event: EventInfo, destinations: Array<Destination>, offersByType:  onEditButtonClick: function, onFavoriteClick: function}} params
    */
-  constructor({ event, destinations, offersByTypes, onButtonClick, onFavoriteClick }) {
+  constructor({ event, destinations, offersByTypes, onEditButtonClick, onFavoriteClick }) {
     super();
     this.#event = event;
     this.#destinations = destinations;
     this.#offersByTypes = offersByTypes;
-    this.#handlerEditClick = onButtonClick;
+    this.#handlerEditClick = onEditButtonClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);

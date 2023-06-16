@@ -1,8 +1,8 @@
 //@ts-check
 import { generateOffers } from '../mock/offers-mock';
 
-/**@typedef {import('../mock/offers-mock').TypeOffers} TypeOffers*/
 /**@typedef {import('../mock/offers-mock').Offer} Offer*/
+/**@typedef {Map<string, Array<Offer>>} OffersByType*/
 
 export default class OffersModel {
   /** @type {Map<string, Array<Offer>>} */
@@ -16,7 +16,7 @@ export default class OffersModel {
   }
 
   /**
-   * @returns {Map<string, Array<Offer>>}
+   * @returns {OffersByType}
    */
   get offers() {
     return this.#offers;
