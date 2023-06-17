@@ -144,8 +144,9 @@ export default class EventPresenter {
     if (event.id.trim().length < 1) {
       throw new Error('Нету функции добавления нового события');
     }
-    if (event.destination.trim().length < 1) {
-      throw new Error('Нету точки назначения');
+
+    if (event.dateFrom instanceof Date) {
+      // В модели дата храниться в другом формате
     }
 
     this.#replaceFormToInfo();

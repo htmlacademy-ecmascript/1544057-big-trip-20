@@ -1,3 +1,7 @@
+import 'flatpickr/dist/flatpickr.min.css';
+
+import flatpickr from 'flatpickr';
+
 //@ts-check
 import { EVENT_FORM_FORMAT } from '../../constants.js';
 import AbstractStatefulView
@@ -268,8 +272,8 @@ const createEventFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
 
 
 /** Класс представления формы изменения или добавления точки путешесвия
-         * @class EventFormView
-        */
+ * @class EventFormView
+ */
 export default class EventFormView extends AbstractStatefulView {
   #event;
   #destinations;
@@ -277,6 +281,8 @@ export default class EventFormView extends AbstractStatefulView {
   #handlerCancelClick;
   #handlerSubmitClick;
   #destinationsByCities;
+  #dateToPicker;
+  #dateFromPicker;
 
   /**
    * Конструктор компонента формы события
@@ -297,15 +303,28 @@ export default class EventFormView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-
   get template() {
     return createEventFormTemplate({ ...this._state, destinations: this.#destinations });
   }
 
+  /**
+   * Сбрасывает состояние на изначальное
+   */
   resetState = () => {
     const prevState = EventFormView.parseEventToState(this.#event, this.#offersByTypes, this.#destinations);
     this.updateElement({ ...prevState });
   };
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#dateToPicker || this.#dateFromPicker) {
+      this.#dateToPicker?.destroy();
+      this.#dateFromPicker?.destroy();
+      this.#dateToPicker = undefined;
+      this.#dateFromPicker = undefined;
+    }
+  }
 
   _restoreHandlers() {
     const buttons = this.element.querySelectorAll('button');
@@ -316,12 +335,64 @@ export default class EventFormView extends AbstractStatefulView {
 
     this.element.querySelector('.event__type-group')
       .addEventListener('change', this.#typeChangeHandler);
+
+    this.#setDatepicker();
   }
 
-  /** Проверяет корректность заполенния поллей */
+  /** Проверяет корректность заполенния полей */
   #isSubmitDisabled() {
-    return !this._state.destination || !this._state.basePrice;
+    return !this._state.destination ||
+      !this._state.basePrice ||
+      !this._state.dateFrom ||
+      !this._state.dateTo;
   }
+
+  #setDatepicker = () => {
+    const [dateFrom, dateTo] = this.element.querySelectorAll('.event__input--time');
+    this.#dateToPicker = flatpickr(
+      dateFrom,
+      {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+        enableTime: true,
+        maxDate: this._state.dateTo,
+        'time_24hr': true,
+        locale: {
+          firstDayOfWeek: 1
+        }
+      }
+    );
+    this.#dateFromPicker = flatpickr(
+      dateTo,
+      {
+        dateFormat: 'Y-m-dTH:i:S.000Z',
+        altInput: true,
+        altFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateTo,
+        onChange: this.#dateToChangeHandler,
+        enableTime: true,
+        minDate: this._state.dateFrom,
+        'time_24hr': true,
+        locale: {
+          firstDayOfWeek: 1
+        }
+      }
+    );
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this._setState({
+      dateFrom: userDate
+    });
+  };
+
+
+  #dateToChangeHandler = ([userDate]) => {
+    this._setState({
+      dateTo: userDate
+    });
+  };
 
   /**Обратывает отмену сохранения*/
   #cancelSaveClickHandler() {
@@ -329,7 +400,10 @@ export default class EventFormView extends AbstractStatefulView {
     this.#handlerCancelClick();
   }
 
-  /**@param {Event} event*/
+  /**
+ * Обработчик всех кнопок
+ * @param {Event} event
+ */
   #buttosClickHandler = (event) => {
     event.preventDefault();
     switch (event.target.className) {
@@ -338,6 +412,7 @@ export default class EventFormView extends AbstractStatefulView {
         break;
       case 'event__save-btn  btn  btn--blue':
         this.#handlerSubmitClick(EventFormView.parseStateToEvent(this._state));
+        this.removeElement();
         break;
       case 'event__rollup-btn':
         this.#cancelSaveClickHandler();
@@ -346,15 +421,19 @@ export default class EventFormView extends AbstractStatefulView {
     }
   };
 
-  /**@param {Event} event*/
+  /**
+   * Обработчик и валидация инпутов
+   * @param {Event} event
+   */
+  //Валидирует сразу все input
   #inputsChangeHandler = (event) => {
     const saveButton = this.element.querySelector('.event__save-btn');
     const fileldType = event.target.className.split('--')[1] || event.target.className;
 
     /**
-     * Обновляет basePrice
-     * @param {?EventTarget} target
-     */
+   * Обновляет basePrice
+   * @param {?EventTarget} target
+   */
     const updateBasePrice = (target) => {
 
       target.value = target.value.replace(/\D+/g, '');
@@ -370,9 +449,9 @@ export default class EventFormView extends AbstractStatefulView {
     };
 
     /**
-     * Обновляет определенный offer
-     * @param {Object} offer id
-     */
+   * Обновляет определенный offer
+   * @param {Object} offer id
+   */
     const updateOfferSelect = ({ id }) => {
       const findOffer = findItemById(this._state.offers, id);
       const newOffer = { ...findOffer, selected: !findOffer.selected };
@@ -385,7 +464,7 @@ export default class EventFormView extends AbstractStatefulView {
       target.value = target.value.trim();
       const destination = this.#destinationsByCities.get(target.value) || false;
       if (destination) {
-        this.updateElement({ ...this._state, destination });
+        this.updateElement({ destination });
         return;
       }
       target.value = ' ';
@@ -398,8 +477,6 @@ export default class EventFormView extends AbstractStatefulView {
     switch (fileldType) {
       case 'destination':
         updateDectination(event.target);
-        break;
-      case 'time':
         break;
       case 'price':
         updateBasePrice(event.target);
@@ -418,7 +495,7 @@ export default class EventFormView extends AbstractStatefulView {
     const value = event.target.value;
     const type = value.charAt(0).toUpperCase() + value.slice(1);
     const offers = this.#offersByTypes.get(type);
-    this.updateElement({ ...this._state, type, offers });
+    this.updateElement({ type, offers });
   };
 
   /**
