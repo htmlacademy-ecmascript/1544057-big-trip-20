@@ -1,4 +1,4 @@
-const MIN_EVENTS = 0;
+const MIN_EVENTS = 1;
 const MAX_EVENTS = 4;
 const MAX_SELECT_OFFERS = 3;
 
@@ -21,7 +21,6 @@ const SortTypes = {
   PRICE: 'price',
   OFFERS: 'offers',
 };
-
 
 const RENDER_DATE_FORMAT = 'MMM D';
 const EVENT_INFO_FORMAT = 'HH:mm';

@@ -18,7 +18,7 @@ const eventId = getRandomIntGenerator();
  * @property {string} dateTo
  * @property {string} destination
  * @property {boolean} isFavorite
- * @property {Array<Offer>} offers
+ * @property {Array<string>} offers
  * @property {string} type
  */
 

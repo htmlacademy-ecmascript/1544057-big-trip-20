@@ -41,7 +41,7 @@ export default class TripInfoPresenter {
     const eventsDates = this.#tripEvents.map((event) => event.dateFrom);
 
     const offersId = this.#tripEvents.map((event) => event.offers).flat();
-    const offersCost = offersId.map((id) => this.#offersModel.getById(id).price);
+    const offersCost = offersId.map((id) => this.#offersModel.getById(id)?.price || 0);
     const eventsCost = this.#tripEvents.map((event) => event.basePrice);
     const tripCost = summary(...offersCost, ...eventsCost);
 

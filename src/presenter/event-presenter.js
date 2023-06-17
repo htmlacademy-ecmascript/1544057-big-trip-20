@@ -1,19 +1,11 @@
-//@ts-check
-import { FormTypes } from '../constants.js';
 import { remove, render, replace } from '../framework/render.js';
-import { checkEcsKeydownPress } from '../utils/commons.js';
+import { checkEscKeydownPress } from '../utils/commons.js';
 import EventFormView from '../view/event/event-form-view.js';
 import EventInfoView from '../view/event/event-info-view.js';
 
 /** Пересентер события */
 /**@typedef {import('./page-presenter').EventObject}  EventObject*/
 /**@typedef {import('../model/offers-model.js').Offer} Offer */
-/**
- * @typedef EventInfo
- * @type {Object}
- * @property {import('../model/destinations-model.js').Destination | undefined} destinationInfo
- * @property {Array<Offer|undefined>|undefined} offersInfo
-*/
 /**@typedef {import('../model/destinations-model.js').default}  DestinationsModel*/
 /**@typedef {import('../model/offers-model.js').default}  OffersModel*/
 
@@ -21,6 +13,7 @@ const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
 };
+
 export default class EventPresenter {
   #eventsListContainer;
   #offersModel;
@@ -56,8 +49,9 @@ export default class EventPresenter {
 
     this.#eventInfoComponent = new EventInfoView({
       event: this.#event,
-      eventInfo: this.#getEventInfo(this.#event),
-      onButtonClick: () => {
+      destinations: this.#destinationsModel.destinations,
+      offersByTypes: this.#offersModel.offers,
+      onEditButtonClick: () => {
         this.#replaceEventToForm();
         document.addEventListener('keydown', this.#ecsKeydownHandler);
       },
@@ -66,12 +60,10 @@ export default class EventPresenter {
 
     this.#eventFormComponent = new EventFormView({
       event: this.#event,
-      formType: FormTypes.EDIT_FORM,
-      eventInfo: this.#getEventInfo(this.#event),
       destinations: this.#destinationsModel.destinations,
-      onButtonClick: () => {
-        this.#replaceFormToInfo();
-      }
+      offersByTypes: this.#offersModel.offers,
+      onCancelClick: this.#replaceFormToInfo,
+      onSubmitClick: this.#handleFormSubmit
     });
 
     if (!prevInfoComponent || !prevFormComponent) {
@@ -91,45 +83,42 @@ export default class EventPresenter {
     remove(prevFormComponent);
   }
 
-  resetView() {
+  /**
+   * Сбрасывает карточку на режим просмотра
+   */
+  resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToInfo();
     }
-  }
+  };
 
   /**
-  * @param {EventObject} event
-  * @returns {EventInfo} Event
-  */
-  #getEventInfo(event) {
-    const destinationInfo = this.#destinationsModel.getById(event.destination);
+   * Обработчик нажатия ESCAPE
+   * @param {KeyboardEvent} event
+   */
+  #ecsKeydownHandler = (event) => {
+    checkEscKeydownPress(event, () => {
+      this.#eventFormComponent.resetState();
+      this.#replaceFormToInfo();
+    });
+  };
 
-    /**@type {EventInfo}*/
-    const EventInfo = {
-      destinationInfo,
-      offersInfo: event.offers.map((/** @type {object} */ offer) => this.#offersModel.getById(offer))
-    };
-
-    return EventInfo;
-  }
-
-  /** @param {KeyboardEvent} event*/
-  #ecsKeydownHandler = (event) => checkEcsKeydownPress(event, this.#replaceFormToInfo);
-
+  /**
+   * Переводит карточку на режим редактирования
+   */
   #replaceEventToForm = () => {
     replace(this.#eventFormComponent, this.#eventInfoComponent);
     this.#handleModeChange();
     this.#mode = Mode.EDITING;
   };
 
+  /**
+   * Переводит карточку в режим просмотра
+   */
   #replaceFormToInfo = () => {
     replace(this.#eventInfoComponent, this.#eventFormComponent);
     document.removeEventListener('keydown', this.#ecsKeydownHandler);
     this.#mode = Mode.DEFAULT;
-  };
-
-  #handleFavoriteClick = () => {
-    this.#handleDataChange({ ...this.#event, isFavorite: !this.#event.isFavorite });
   };
 
   /**
@@ -139,4 +128,29 @@ export default class EventPresenter {
     remove(this.#eventInfoComponent);
     remove(this.#eventFormComponent);
   }
+
+  /**
+   * Обработчик клика по кнопке добавить в избранное
+   */
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({ ...this.#event, isFavorite: !this.#event.isFavorite });
+  };
+
+  /**
+   * Обработчик сохранения данных формы
+   * @param {EventObject} event
+   */
+  #handleFormSubmit = (event) => {
+    if (event.id.trim().length < 1) {
+      throw new Error('Нету функции добавления нового события');
+    }
+    if (event.destination.trim().length < 1) {
+      throw new Error('Нету точки назначения');
+    }
+
+    this.#replaceFormToInfo();
+
+    this.#handleDataChange({ ...event });
+  };
+
 }
