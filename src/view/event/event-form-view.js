@@ -128,7 +128,7 @@ function createDestinationsSelect(type, eventDestination, destinations) {
 
 /**
  * Создает шаблон описания места назначения
- * @param {Destination} destination
+ * @param {Destination | string} destination
  * @returns {string}
  */
 function createDestinationSection(destination) {
@@ -138,9 +138,7 @@ function createDestinationSection(destination) {
  */
   const createPhoto = (photoSrc, description) => `<img class="event__photo" src="${photoSrc}" alt="${description}">`;
 
-
   const createPhotos = () => {
-
     const photos = destination.pictures.map((photo) => createPhoto(photo.src, photo.description));
 
     return photos.join('\n');
@@ -157,7 +155,7 @@ function createDestinationSection(destination) {
         </div>
       </section > `;
 
-  return destination ? getdestinationsTemplate() : '';
+  return destination?.description ? getdestinationsTemplate() : '';
 }
 
 /**
@@ -320,6 +318,11 @@ export default class EventFormView extends AbstractStatefulView {
       .addEventListener('change', this.#typeChangeHandler);
   }
 
+  /** Проверяет корректность заполенния поллей */
+  #isSubmitDisabled() {
+    return !this._state.destination || !this._state.basePrice;
+  }
+
   /**Обратывает отмену сохранения*/
   #cancelSaveClickHandler() {
     this.resetState();
@@ -345,33 +348,69 @@ export default class EventFormView extends AbstractStatefulView {
 
   /**@param {Event} event*/
   #inputsChangeHandler = (event) => {
-    event.preventDefault();
+    const saveButton = this.element.querySelector('.event__save-btn');
     const fileldType = event.target.className.split('--')[1] || event.target.className;
+
+    /**
+     * Обновляет basePrice
+     * @param {?EventTarget} target
+     */
+    const updateBasePrice = (target) => {
+
+      target.value = target.value.replace(/\D+/g, '');
+
+      const basePrice = Number(target.value);
+      if (basePrice) {
+        target.value = basePrice;
+        this._setState({ ...this._state, basePrice });
+        return;
+      }
+
+      this._setState({ ...this._state, basePrice: false });
+    };
+
+    /**
+     * Обновляет определенный offer
+     * @param {Object} offer id
+     */
+    const updateOfferSelect = ({ id }) => {
+      const findOffer = findItemById(this._state.offers, id);
+      const newOffer = { ...findOffer, selected: !findOffer.selected };
+
+      this._setState({ ...this._state, offers: updateItem(this._state.offers, newOffer) });
+
+    };
+
+    const updateDectination = (target) => {
+      target.value = target.value.trim();
+      const destination = this.#destinationsByCities.get(target.value) || false;
+      if (destination) {
+        this.updateElement({ ...this._state, destination });
+        return;
+      }
+      target.value = ' ';
+      this._setState({ ...this._state, destination: false });
+    };
+
+    event.preventDefault();
+
+
     switch (fileldType) {
       case 'destination':
-        this.updateElement({ ...this._state, destination: this.#destinationsByCities.get(event.target.value) || false });
+        updateDectination(event.target);
         break;
       case 'time':
         break;
       case 'price':
-        this._setState({ ...this._state, basePrice: event.target.value });
+        updateBasePrice(event.target);
         break;
       case 'event__offer-checkbox  visually-hidden':
-        this._setState({ ...this._state, offers: updateItem(this._state.offers, updateOfferSelect(this._state.offers, event.target.id)) });
+        updateOfferSelect(event.target);
         break;
       default:
     }
 
-    /**
-     * Обновляет определенный offer
-     * @param {string} id offer id
-     * @param {Array<Offer>} offers
-     */
-    function updateOfferSelect(offers, id) {
-      const offer = findItemById(offers, id);
-
-      return { ...offer, selected: !offer.selected };
-    }
+    saveButton.disabled = this.#isSubmitDisabled();
   };
 
   /**@param {Event} event*/
