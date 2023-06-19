@@ -128,7 +128,9 @@ export default class PagePresenter {
   */
   #handleEventChange = (updateEvent) => {
     this.#tripEvents = updateItem(this.#tripEvents, updateEvent);
-    this.#eventPresenters.get(updateEvent.id).init(updateEvent);
+    this.#eventPresenters.get(updateEvent.id);
+    this.#clearEventPresenters();
+    this.#renderEvents();
   };
 
   /**

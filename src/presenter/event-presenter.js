@@ -62,7 +62,7 @@ export default class EventPresenter {
       event: this.#event,
       destinations: this.#destinationsModel.destinations,
       offersByTypes: this.#offersModel.offers,
-      onCancelClick: this.#replaceFormToInfo,
+      onCancelClick: this.resetView,
       onSubmitClick: this.#handleFormSubmit
     });
 
@@ -84,10 +84,11 @@ export default class EventPresenter {
   }
 
   /**
-   * Сбрасывает карточку на режим просмотра
+   * Сбрасывает карточку на режим просмотра c сбросом state
    */
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#eventFormComponent.reset(this.#event);
       this.#replaceFormToInfo();
     }
   };
@@ -98,8 +99,7 @@ export default class EventPresenter {
    */
   #ecsKeydownHandler = (event) => {
     checkEscKeydownPress(event, () => {
-      this.#eventFormComponent.resetState();
-      this.#replaceFormToInfo();
+      this.resetView();
     });
   };
 

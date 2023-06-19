@@ -236,38 +236,37 @@ const createEventFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
   const destinationSectionTemplate = createDestinationSection(destination);
   const eventPrice = basePrice ? basePrice : '';
 
-  return `
-<li class="trip-events__item" >
-  <form class="event event--edit" action="#" method="post">
-    <header class="event__header">
-      ${eventTypesTemplate}
-      ${destinationsSelectTemplate}
+  return `<li class="trip-events__item" >
+            <form class="event event--edit" action="#" method="post">
+              <header class="event__header">
+                ${eventTypesTemplate}
+                ${destinationsSelectTemplate}
 
-      <div class="event__field-group  event__field-group--time">
-        <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
-          &mdash;
-        <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
-      </div>
+                <div class="event__field-group  event__field-group--time">
+                  <label class="visually-hidden" for="event-start-time-1">From</label>
+                  <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
+                    &mdash;
+                  <label class="visually-hidden" for="event-end-time-1">To</label>
+                  <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
+                </div>
 
-      <div class="event__field-group  event__field-group--price">
-        <label class="event__label" for="event-price-1">
-          <span class="visually-hidden">Price</span>
-          &euro;
-        </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${eventPrice}">
-      </div>
+                <div class="event__field-group  event__field-group--price">
+                  <label class="event__label" for="event-price-1">
+                    <span class="visually-hidden">Price</span>
+                    &euro;
+                  </label>
+                  <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${eventPrice}">
+                </div>
 
-      ${buttonsTemplate}
-    </header>
+                ${buttonsTemplate}
+              </header>
 
-    <section class="event__details">
-      ${offersSectionTemplate}
-      ${destinationSectionTemplate}
-    </section>
-  </form>
-</li>`;
+              <section class="event__details">
+                ${offersSectionTemplate}
+                ${destinationSectionTemplate}
+              </section>
+            </form>
+          </li>`;
 };
 
 
@@ -275,7 +274,6 @@ const createEventFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
  * @class EventFormView
  */
 export default class EventFormView extends AbstractStatefulView {
-  #event;
   #destinations;
   #offersByTypes;
   #handlerCancelClick;
@@ -290,11 +288,10 @@ export default class EventFormView extends AbstractStatefulView {
    */
   constructor({ event = BLANK_EVENT, destinations, offersByTypes, onCancelClick, onSubmitClick }) {
     super();
-    this.#event = event;
     this.#destinations = destinations;
     this.#destinationsByCities = new Map();
     this.#offersByTypes = offersByTypes;
-    this._setState(EventFormView.parseEventToState(this.#event, this.#offersByTypes, this.#destinations));
+    this._setState(EventFormView.parseEventToState(event, this.#offersByTypes, this.#destinations));
     this.#handlerCancelClick = onCancelClick;
     this.#handlerSubmitClick = onSubmitClick;
 
@@ -310,8 +307,8 @@ export default class EventFormView extends AbstractStatefulView {
   /**
    * Сбрасывает состояние на изначальное
    */
-  resetState = () => {
-    const prevState = EventFormView.parseEventToState(this.#event, this.#offersByTypes, this.#destinations);
+  reset = (event) => {
+    const prevState = EventFormView.parseEventToState(event, this.#offersByTypes, this.#destinations);
     this.updateElement({ ...prevState });
   };
 
@@ -387,7 +384,6 @@ export default class EventFormView extends AbstractStatefulView {
     });
   };
 
-
   #dateToChangeHandler = ([userDate]) => {
     this._setState({
       dateTo: userDate
@@ -396,7 +392,6 @@ export default class EventFormView extends AbstractStatefulView {
 
   /**Обратывает отмену сохранения*/
   #cancelSaveClickHandler() {
-    this.resetState();
     this.#handlerCancelClick();
   }
 

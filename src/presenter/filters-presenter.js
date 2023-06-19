@@ -25,11 +25,11 @@ export default class FiltersPresenter {
   #eventsFiltersComponent;
 
   /**
- * @typedef Params
- * @type {Object}
- * @property {Array<object>} events
- * @property {HTMLElement} FiltersContainer
- */
+   * @typedef Params
+   * @type {Object}
+   * @property {Array<object>} events
+   * @property {HTMLElement} FiltersContainer
+   */
 
   /** @param {Params} params*/
   constructor({ events, FiltersContainer }) {
