@@ -3,7 +3,7 @@ import {
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,
-} from '../utils/commons.js';
+} from './commons.js';
 import { DESCRIPTIONS } from './constants-mock';
 
 const CITY_NAMES = ['Amsterdam', 'Chamonix', 'Geneva', 'Rome', 'New York'];

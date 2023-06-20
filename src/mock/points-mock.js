@@ -3,14 +3,14 @@ import {
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,
-} from '../utils/commons.js';
-import { EVENT_TYPES } from './constants-mock';
+} from './commons.js';
+import { POINT_TYPES } from './constants-mock.js';
 
 /**@typedef {import('./offers-mock.js').Offer} Offer*/
 
-const eventId = getRandomIntGenerator();
+const pointId = getRandomIntGenerator();
 /**
- * @typedef EventObject
+ * @typedef PointObject
  * @type {Object}
  * @property {string} id
  * @property {number} basePrice
@@ -24,9 +24,9 @@ const eventId = getRandomIntGenerator();
 
 /**
  * Функция для генерации события
- * @returns {EventObject}
+ * @returns {PointObject}
  */
-export const generateEvent = () => {
+export const generatePoint = () => {
   let day = getRandomInteger(1, 28);
   const year = `20${getRandomInteger(10, 30)}`;
   const month = getRandomInteger(1, 12);
@@ -35,13 +35,13 @@ export const generateEvent = () => {
   const dateTo = `${year}-${month}-${++day}T${getRandomInteger(0, 11)}:${getRandomInteger(10, 59)}`;
 
   return {
-    'id': `event-${eventId()}`,
+    'id': `point-${pointId()}`,
     'basePrice': getRandomInteger(100, 1000),
     dateFrom,
     dateTo,
     'destination': '',
     'isFavorite': Boolean(getRandomInteger(0, 1)),
     'offers': [],
-    'type': getRandomArrayElement(EVENT_TYPES)
+    'type': getRandomArrayElement(POINT_TYPES)
   };
 };
