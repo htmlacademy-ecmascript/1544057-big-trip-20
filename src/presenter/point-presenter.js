@@ -137,7 +137,7 @@ export default class PointPresenter {
   #handleFavoriteClick = () => {
 
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_POINT,
       UpdateType.PATCH,
       { ...this.#point, isFavorite: !this.#point.isFavorite });
   };
@@ -158,14 +158,14 @@ export default class PointPresenter {
     this.#replaceFormToInfo();
 
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       { ...point });
   };
 
   #handlerDeleteClick = (point) => {
     this.#handleDataChange(
-      UserAction.DELETE_TASK,
+      UserAction.DELETE_POINT,
       UpdateType.MAJOR,
       { ...point });
   };

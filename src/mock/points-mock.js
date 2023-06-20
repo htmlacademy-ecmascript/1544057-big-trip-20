@@ -8,7 +8,7 @@ import { POINT_TYPES } from './constants-mock.js';
 
 /**@typedef {import('./offers-mock.js').Offer} Offer*/
 
-const pointId = getRandomIntGenerator();
+export const pointId = getRandomIntGenerator();
 /**
  * @typedef PointObject
  * @type {Object}

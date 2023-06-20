@@ -2,6 +2,7 @@
 import 'flatpickr/dist/flatpickr.min.css';
 
 import flatpickr from 'flatpickr';
+import he from 'he';
 
 //@ts-check
 import { POINT_FORM_FORMAT } from '../../constants.js';
@@ -13,8 +14,8 @@ import { humanizeDate } from '../../utils/points.js';
  * @typedef {import('../../model/offers-model.js').Offer} Offer
  * @typedef {import('../../model/offers-model.js').OffersByType} OffersByType
  * @typedef {import('../../model/destinations-model.js').Destinations} Destinations
+ * @typedef {import('../../model/destinations-model.js').Destination} Destination
  * @typedef { import('../../model/points-model.js').PointObject } PointObject
- * @typedef { import('./point-info-view.js').Destination } Destination
  */
 
 /**
@@ -50,7 +51,7 @@ const BLANK_POINT = {
  */
 function createButton(isEditForm) {
   const createEditButtonTemplate = () => `
-  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+  <button class="event__save-btn  btn  btn--blue" type="submit" disabled>Save</button>
   <button class="event__reset-btn" type="reset">Delete</button>
   <button class="event__rollup-btn" type="button">
   <span class="visually-hidden">Open event</span>
@@ -58,7 +59,7 @@ function createButton(isEditForm) {
 `;
 
   const createAddButtonTemplate = () => `
-  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+  <button class="event__save-btn  btn  btn--blue" type="submit" disabled>Save</button>
   <button class="event__reset-btn" type="reset">Cancel</button>
 `;
 
@@ -75,8 +76,7 @@ function createOffersSection(offersByTypes) {
  * @param {boolean} checked
  * @returns {string}
  */
-  const createOffer = (offer, checked = false) => `
-<div class="event__offer-selector">
+  const createOffer = (offer, checked = false) => `<div class="event__offer-selector">
   <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" ${checked ? 'checked' : ''}>
   <label class="event__offer-label" for="${offer.id}">
     <span class="event__offer-title">${offer.title}</span>
@@ -120,7 +120,7 @@ function createDestinationsSelect(type, pointDestination, destinations) {
     <label class="event__label  event__type-output" for="event-destination-1">
       ${type}
     </label>
-    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityName}" list="destination-list-1">
+    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(cityName)}" list="destination-list-1" autocomplete="off" required>
     <datalist id="destination-list-1">
       ${destinationSlelectTemplates.join('\n')}
     </datalist>
@@ -243,10 +243,10 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
 
                 <div class="event__field-group  event__field-group--time">
                   <label class="visually-hidden" for="event-start-time-1">From</label>
-                  <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
+                  <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" required >
                     &mdash;
                   <label class="visually-hidden" for="event-end-time-1">To</label>
-                  <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
+                  <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" required >
                 </div>
 
                 <div class="event__field-group  event__field-group--price">
@@ -254,7 +254,7 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
                     <span class="visually-hidden">Price</span>
                     &euro;
                   </label>
-                  <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${pointPrice}">
+                  <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price"  min="1" value="${pointPrice}" required>
                 </div>
 
                 ${buttonsTemplate}
@@ -438,7 +438,6 @@ export default class PointFormView extends AbstractStatefulView {
    */
     const updateBasePrice = (target) => {
 
-      target.value = target.value.replace(/\D+/g, '');
 
       const basePrice = Number(target.value);
       if (basePrice) {

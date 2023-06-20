@@ -16,6 +16,7 @@ import {
 import PointsEmplyView from '../view/points-emply-view.js';
 import PointsListView from '../view/points-list-view.js';
 import PointsSortView from '../view/points-sort-view.js';
+import NewPointPresenter from './new-point-presenter.js';
 import PointPresenter from './point-presenter.js';
 
 /**@typedef {import('../model/points-model.js').PointObject} PointObject */
@@ -43,24 +44,30 @@ export default class PointsBoardPresenter {
 
   /**@type{Map<string, PointPresenter>} */
   #pointPresenters = new Map();
+  #newPointPresenter;
 
   #currentSortType = SortTypes.DEFAULT;
   #filterType = FilterTypes.EVERYTHING;
 
   /**
    * Конструктор доски точек маршрута
-   * @param {{points: PointsModel, destinationsModel: DestinationsModel, offersModel: OffersModel, pointsConstainer: HTMLElement, filterModel: FilterModel}} paramы
+   * @param {{points: PointsModel, destinationsModel: DestinationsModel, offersModel: OffersModel, pointsConstainer: HTMLElement, filterModel: FilterModel, onNewTaskDestroy: function}} paramы
    */
-  constructor({ destinationsModel, pointsModel, offersModel, pointsConstainer, filterModel }) {
+  constructor({ destinationsModel, pointsModel, offersModel, pointsConstainer, filterModel, onNewTaskDestroy }) {
     this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#filterModel = filterModel;
 
     this.#pointsListComponent = new PointsListView();
-
-
     this.#pointsConstainer = pointsConstainer;
+
+    this.#newPointPresenter = new NewPointPresenter({
+      pointsListContainer: this.#pointsListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewTaskDestroy
+    });
+
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -83,6 +90,15 @@ export default class PointsBoardPresenter {
     }
 
     this.#renderEmplyPoints();
+  }
+
+  createPoint() {
+    this.#currentSortType = SortTypes.DEFAULT;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterTypes.EVERYTHING);
+    this.#newPointPresenter.init({
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel
+    });
   }
 
   /**
@@ -155,6 +171,7 @@ export default class PointsBoardPresenter {
   #clearPointsBoard({ resetSortType = false } = {}) {
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointPresenters.clear();
+    this.#newPointPresenter.destroy();
 
     remove(this.#sortsComponent);
 
@@ -175,13 +192,13 @@ export default class PointsBoardPresenter {
   */
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
-      case UserAction.UPDATE_TASK:
+      case UserAction.UPDATE_POINT:
         this.#pointsModel.updatePoint(updateType, update);
         break;
-      case UserAction.ADD_TASK:
+      case UserAction.ADD_POINT:
         this.#pointsModel.addPoint(updateType, update);
         break;
-      case UserAction.DELETE_TASK:
+      case UserAction.DELETE_POINT:
         this.#pointsModel.deletePoint(updateType, update);
         break;
     }
@@ -220,6 +237,7 @@ export default class PointsBoardPresenter {
   };
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 }
