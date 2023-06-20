@@ -2,8 +2,8 @@ import {
   getRandomArrayElement,
   getRandomInteger,
   getRandomIntGenerator,
-} from '../utils/commons.js';
-import { DESCRIPTIONS, EVENT_TYPES } from './constants-mock';
+} from './commons.js';
+import { DESCRIPTIONS, POINT_TYPES } from './constants-mock';
 
 /**
  * @function
@@ -41,8 +41,8 @@ const generateOffer = () => ({
 export const generateOffers = () => {
   const offers = [];
 
-  EVENT_TYPES.forEach((eventType) => offers.push({
-    'type': eventType,
+  POINT_TYPES.forEach((pointType) => offers.push({
+    'type': pointType,
     'offers': Array.from({ length: getRandomInteger(1, 10) }, generateOffer)
   })
   );

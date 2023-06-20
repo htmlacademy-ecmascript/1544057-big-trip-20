@@ -1,24 +1,18 @@
-import { EVENT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
+//@ts-check
+import { POINT_INFO_FORMAT, RENDER_DATE_FORMAT } from '../../constants';
 import AbstractView from '../../framework/view/abstract-view';
-import { calculateDuration, humanizeDate } from '../../utils/events';
+import { calculateDuration, humanizeDate } from '../../utils/points';
 
 /**
- * @typedef {import('../../presenter/event-presenter').EventInfo} EventInfo
- * @typedef {import('../../presenter/page-presenter').EventObject} EventObject
- * @typedef {import('../../model/offers-model').Offer} Offer
- * @typedef {import('../../presenter/event-presenter').Destination} Destination
+ * @typedef {import('../../presenter/page-presenter').PointObject} PointObject
+ * @typedef {import('../../model/offers-model').OffersByType} OffersByType
+ * @typedef {import('../../model/destinations-model').Destinations} Destinations
  * /
-
-/**
- * @typedef ExtendedEvent
- * @type {object}
- * @property {object}
- */
 
 /**
  * Создает шашлон выбранного предложения
  * @param {{title: string, price: number}} params
- * @returns {HTMLElement} Element
+ * @returns {string} Element
  */
 const createOffer = ({ title, price }) => `<li class="event__offer">
       <span class="event__offer-title">${title}</span>
@@ -29,16 +23,16 @@ const createOffer = ({ title, price }) => `<li class="event__offer">
 /**
  * Создает шаблон всех выбранных предложений
  * @param {Array<Offer>} offers
- * @returns {HTMLElement} Element
+ * @returns {string} Element
  */
 const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join('\n');
 
 /**
  *
- * @param {EventInfo} params
+ * @param {PointObject} params
  * @returns
  */
-const createEventInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, basePrice, isFavorite }) => `
+const createPointInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, basePrice, isFavorite }) => `
 <li class="trip-events__item">
   <div class="event">
   <time class="event__date" datetime = "${dateFrom}" > ${humanizeDate(dateFrom, RENDER_DATE_FORMAT)}</time >
@@ -48,9 +42,9 @@ const createEventInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, 
   <h3 class="event__title">${type} ${destination.name}</h3>
   <div class="event__schedule">
     <p class="event__time">
-      <time class="event__start-time" datetime="${dateFrom}" > ${humanizeDate(dateFrom, EVENT_INFO_FORMAT)}</time>
+      <time class="event__start-time" datetime="${dateFrom}" > ${humanizeDate(dateFrom, POINT_INFO_FORMAT)}</time>
       &mdash;
-      <time class="event__end-time" datetime="${dateTo}" > ${humanizeDate(dateTo, EVENT_INFO_FORMAT)}</time>
+      <time class="event__end-time" datetime="${dateTo}" > ${humanizeDate(dateTo, POINT_INFO_FORMAT)}</time>
     </p>
     <p class="event__duration">${calculateDuration(dateFrom, dateTo)}</p>
   </div>
@@ -72,21 +66,21 @@ const createEventInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, 
 </li>
 `;
 
-export default class EventInfoView extends AbstractView {
-  #event;
+export default class PointInfoView extends AbstractView {
+  #point;
   #destinations;
-  #offersByTypes;
+  #offersByType;
   #handlerEditClick;
   #handleFavoriteClick;
 
   /**
-   * @param {{event: EventInfo, destinations: Array<Destination>, offersByType:  onEditButtonClick: function, onFavoriteClick: function}} params
+   * @param {{point: PointObject, destinations: Destinations, offersByType: OffersByType,  onEditButtonClick: function, onFavoriteClick: function}} params
    */
-  constructor({ event, destinations, offersByTypes, onEditButtonClick, onFavoriteClick }) {
+  constructor({ point, destinations, offersByType, onEditButtonClick, onFavoriteClick }) {
     super();
-    this.#event = event;
+    this.#point = point;
     this.#destinations = destinations;
-    this.#offersByTypes = offersByTypes;
+    this.#offersByType = offersByType;
     this.#handlerEditClick = onEditButtonClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -95,26 +89,23 @@ export default class EventInfoView extends AbstractView {
   }
 
   get template() {
-    return createEventInfoTemplate(this.#parseEvent(this.#event));
+    return createPointInfoTemplate(this.#parsePoint(this.#point));
   }
 
   /**
-   * Parses an event object and extracts the relevant information.
+   * Parses an point object and extracts the relevant information.
    *
-   * @param {EventInfo} event - The event object containing extended event information.
-   * @returns {Object} - The parsed event object with destination and offers properties.
+   * @param {PointObject} point - The point object containing extended point information.
+   * @returns {PointObject} - The parsed point object with destination and offers properties.
    */
-  #parseEvent(event) {
-    const offersByType = this.#offersByTypes.get(event.type);
-    const offers = event.offers.map((offerId) => {
-      const result = offersByType.find((offer) => offer.id === offerId);
-      return result ? result : null;
-    });
+  #parsePoint(point) {
+    const offersByType = this.#offersByType.get(point.type) || new Map();
+    const offers = point.offers.map((offerId) => offersByType.get((offerId)) || null);
 
     return {
-      ...event,
+      ...point,
       offers: offers.filter(Boolean),
-      destination: this.#destinations.get(event.destination),
+      destination: this.#destinations.get(point.destination),
     };
   }
 

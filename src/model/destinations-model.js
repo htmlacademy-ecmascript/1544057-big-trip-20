@@ -11,6 +11,7 @@ export default class DestinationsModel {
 
   constructor() {
     const generatedDestinations = generateDestinations();
+
     generatedDestinations.forEach((destination) => {
       this.#destinations.set(destination.id, destination);
     });
@@ -21,13 +22,5 @@ export default class DestinationsModel {
    */
   get destinations() {
     return this.#destinations;
-  }
-
-  /**
-   * @param {string} id
-   * @returns {Destination|undefined} Destination
-   */
-  getById(id) {
-    return this.#destinations.get(id);
   }
 }

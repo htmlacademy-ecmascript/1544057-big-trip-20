@@ -2,16 +2,22 @@
 import { generateOffers } from '../mock/offers-mock';
 
 /**@typedef {import('../mock/offers-mock').Offer} Offer*/
-/**@typedef {Map<string, Array<Offer>>} OffersByType*/
+/**@typedef {Map<string, Map<string, Offer>>} OffersByType*/
 
 export default class OffersModel {
-  /** @type {Map<string, Array<Offer>>} */
+  #OffersByType = new Map();
   #offers = new Map();
 
   constructor() {
-    const generatedOffers = generateOffers();
-    generatedOffers.forEach((typeOffer) => {
-      this.#offers.set(typeOffer.type, typeOffer.offers);
+    generateOffers().forEach((typeOffer) => {
+      const offers = new Map();
+
+      typeOffer.offers.forEach((offer) => {
+        this.#offers.set(offer.id, offer);
+        offers.set(offer.id, offer);
+      });
+
+      this.#OffersByType.set(typeOffer.type, offers);
     });
   }
 
@@ -19,15 +25,14 @@ export default class OffersModel {
    * @returns {OffersByType}
    */
   get offers() {
-    return this.#offers;
+    return this.#OffersByType;
   }
 
   /**
  * @param {string} id
  * @returns {Offer|undefined}
  */
-  getById(id) {
-    const offers = [...this.#offers.values()].flat();
-    return offers.find((offer) => offer.id === id);
+  getOffer(id) {
+    return this.#offers.get(id);
   }
 }

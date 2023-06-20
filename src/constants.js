@@ -1,39 +1,47 @@
-const MIN_EVENTS = 1;
-const MAX_EVENTS = 4;
+const MIN_POINTS = 1;
+const MAX_POINTS = 4;
 const MAX_SELECT_OFFERS = 3;
 
-const FormTypes = {
-  EDIT_FORM: 'editForm',
-  ADD_FORM: 'addForm'
-};
-
 const FilterTypes = {
-  EVERYTHING: 'Everything',
-  FUTURE: 'Future',
-  PRESENT: 'Present',
-  PAST: 'Past'
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
 };
 
 const SortTypes = {
   DEFAULT: 'day',
-  EVENT: 'event',
+  POINT: 'event',
   TIME: 'time',
   PRICE: 'price',
   OFFERS: 'offers',
 };
 
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 const RENDER_DATE_FORMAT = 'MMM D';
-const EVENT_INFO_FORMAT = 'HH:mm';
-const EVENT_FORM_FORMAT = 'DD/MM/YY HH:mm';
+const POINT_INFO_FORMAT = 'HH:mm';
+const POINT_FORM_FORMAT = 'DD/MM/YY HH:mm';
 
 export {
-  EVENT_FORM_FORMAT,
-  EVENT_INFO_FORMAT,
   FilterTypes,
-  FormTypes,
-  MAX_EVENTS,
+  MAX_POINTS,
   MAX_SELECT_OFFERS,
-  MIN_EVENTS,
+  MIN_POINTS,
+  POINT_FORM_FORMAT,
+  POINT_INFO_FORMAT,
   RENDER_DATE_FORMAT,
   SortTypes,
+  UpdateType,
+  UserAction,
 };

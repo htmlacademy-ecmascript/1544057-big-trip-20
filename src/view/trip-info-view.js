@@ -1,6 +1,6 @@
 import { RENDER_DATE_FORMAT } from '../constants';
 import AbstractView from '../framework/view/abstract-view';
-import { humanizeDate } from '../utils/events';
+import { humanizeDate } from '../utils/points';
 
 //Amsterdam & mdash; Chamonix & mdash; Geneva;
 const renderCites = (cites) => {
@@ -47,18 +47,18 @@ const createTripInfoTemplate = ({ dates, cites, tripCost }) => `<section class="
           </section>`;
 
 export default class TripInfoView extends AbstractView {
-  #eventsDates = null;
-  #eventsCity = null;
+  #pointsDates = null;
+  #pointsCity = null;
   #tripCost = null;
 
-  constructor({ eventsDates, eventsCity, tripCost }) {
+  constructor({ pointsDates, pointsCity, tripCost }) {
     super();
-    this.#eventsDates = eventsDates;
-    this.#eventsCity = eventsCity;
+    this.#pointsDates = pointsDates;
+    this.#pointsCity = pointsCity;
     this.#tripCost = tripCost;
   }
 
   get template() {
-    return createTripInfoTemplate({ dates: this.#eventsDates, cites: this.#eventsCity, tripCost: this.#tripCost });
+    return createTripInfoTemplate({ dates: this.#pointsDates, cites: this.#pointsCity, tripCost: this.#tripCost });
   }
 }

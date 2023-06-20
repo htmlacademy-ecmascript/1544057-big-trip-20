@@ -1,4 +1,4 @@
-const EVENT_TYPES = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+const POINT_TYPES = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
   'Aliquam erat volutpat',
@@ -9,4 +9,4 @@ const DESCRIPTIONS = [
 
 const MAX_SELECT_OFFERS = 3;
 
-export { DESCRIPTIONS, EVENT_TYPES, MAX_SELECT_OFFERS };
+export { DESCRIPTIONS, MAX_SELECT_OFFERS, POINT_TYPES };

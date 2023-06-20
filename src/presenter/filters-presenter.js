@@ -1,69 +1,75 @@
 //@ts-check
-import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
 
-import { FilterTypes } from '../constants.js';
-import { render, RenderPosition } from '../framework/render.js';
-import EventsFilterView from '../view/events-filter-view.js';
+import { FilterTypes, UpdateType } from '../constants.js';
+import Observable from '../framework/observable.js';
+import { remove, render, replace } from '../framework/render.js';
+import { filters } from '../utils/filters.js';
+import FilterView from '../view/filter-view.js';
 
-dayjs.extend(isBetween);
+/**
+ * @typedef {import('../model/points-model.js').PointObject} PointObject
+ * @typedef {import('../model/filter-model.js').default} FilterModel
+ * @typedef {import('../model/points-model.js').default} PointsModel
+*/
 
 /** Пресентер фильтров*/
-export default class FiltersPresenter {
+export default class FiltersPresenter extends Observable {
   #filtersContainer;
-  /**@property {Array<object>} tripEvents Массив событий событий маршрута*/
-  #tripEvents;
-  /** @type {Array<object>} Массив событий которые будут сегодня*/
-  #presentEvents;
-  /** @type {Array<object>} Массив событий которые будут в будущем*/
-  #futureEvents;
-  /** @type {Array<object>} Массив событий которые были в прошлом*/
-  #pastEvents;
-  /** @type {Object} Объект конфигурации фильтров */
-  #filterConfig;
-  /** @type {EventsFilterView}*/
-  #eventsFiltersComponent;
+  #filterModel;
+  #pointsModel;
 
-  /**
- * @typedef Params
- * @type {Object}
- * @property {Array<object>} events
- * @property {HTMLElement} FiltersContainer
- */
+  #filterComponent;
 
-  /** @param {Params} params*/
-  constructor({ events, FiltersContainer }) {
+  /** @param {{pointsModel: PointsModel, FiltersContainer: HTMLElement, filterModel: FilterModel}} params*/
+  constructor({ pointsModel, FiltersContainer, filterModel }) {
+    super();
     this.#filtersContainer = FiltersContainer;
-    this.#tripEvents = events;
+    this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
 
-    this.#presentEvents = this.#tripEvents.filter((event) => dayjs().isBetween(event.dateFrom, dayjs(event.dateTo)));
-    this.#futureEvents = this.#tripEvents.filter((event) => dayjs().isBefore(dayjs(event.dateFrom)));
-    this.#pastEvents = this.#tripEvents.filter((event) => dayjs().isAfter(dayjs(event.dateTo)));
 
-    this.#filterConfig = {
-      [FilterTypes.EVERYTHING]: {
-        checked: true,
-        disabled: this.#tripEvents.length <= 0,
-      },
-      [FilterTypes.FUTURE]: {
-        checked: false,
-        disabled: this.#futureEvents.length <= 0,
-      },
-      [FilterTypes.PAST]: {
-        checked: false,
-        disabled: this.#pastEvents.length <= 0,
-      },
-      [FilterTypes.PRESENT]: {
-        checked: false,
-        disabled: this.#presentEvents.length <= 0,
-      },
-    };
+    this.#pointsModel.addObserver(this.#handleModelPoint);
+    this.#filterModel.addObserver(this.#handleModelPoint);
+  }
 
-    this.#eventsFiltersComponent = new EventsFilterView(this.#filterConfig);
+  get filters() {
+    const points = this.#pointsModel.points;
+
+    return Object.values(FilterTypes).map((type) => {
+      const filteredPoints = filters[type](points);
+      return { type, disabled: filteredPoints.length <= 0 };
+    });
   }
 
   /**Метод для отрисовки фильтров */
   init() {
-    render(this.#eventsFiltersComponent, this.#filtersContainer, RenderPosition.AFTERBEGIN);
+    const prevFilterComponent = this.#filterComponent;
+
+    this.#filterComponent = new FilterView({
+      filters: this.filters,
+      currentFilterType: this.#filterModel.filter,
+      onFilterTypeChange: this.#handleFilterTypeChange
+    });
+
+    if (!prevFilterComponent) {
+      render(this.#filterComponent, this.#filtersContainer);
+      return;
+    }
+
+    replace(this.#filterComponent, prevFilterComponent);
+    remove(prevFilterComponent);
   }
+
+  #handleModelPoint = () => {
+    this.init();
+  };
+
+  /** @param { string } filterType*/
+  #handleFilterTypeChange = (filterType) => {
+    if (this.#filterModel.filter === filterType) {
+      return;
+    }
+
+    this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
+  };
 }

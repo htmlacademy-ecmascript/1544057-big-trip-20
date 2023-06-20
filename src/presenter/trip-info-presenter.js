@@ -2,57 +2,53 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
 import TripInfoView from '../view/trip-info-view';
 
+/**
+ * @typedef {import('../model/destinations-model.js').Destinations} Destinations
+ * @typedef {import('../model/offers-model.js').default} OffersModel
+ * @typedef {import('../model/points-model.js').PointObject} PointObject
+ * @typedef {import('../model/points-model.js').Points} Points
+ */
+
 export default class TripInfoPresenter {
   /** @type {HTMLElement} */
   #container;
-  /** @type{TripInfoView} */
+  /** @type { TripInfoView } */
   #tripInfoComponent;
-  #destinationsModel;
+  #destinations;
   #offersModel;
-  #eventsModel;
-  /**@type {Array} */
-  #tripEvents;
+  #points;
 
-  /**
-   * @typedef Params
-   * @type {object}
-   * @property {HTMLElement} container
-   * @property {object} destinationsModel
-   * @property {object} offersModel
-   * @property {object} eventsModel
-  */
-
-  /**
-   * @param {Params} params
-   */
-  constructor({ container, destinationsModel, offersModel, eventsModel }) {
+  /** @param { {container: HTMLElement, destinations: Destinations, offersModel: OffersModel, points: Points} } params */
+  constructor({ container, destinations, offersModel, points }) {
     this.#container = container;
-    this.#destinationsModel = destinationsModel;
+    this.#destinations = destinations;
     this.#offersModel = offersModel;
-    this.#eventsModel = eventsModel;
-    this.#tripEvents = [...this.#eventsModel.events];
+    this.#points = Array.from(points.values());
   }
 
   init() {
-    const summary = (/** @type {number[]} */ ...arr) => arr.reduce((partialSum, a) => partialSum + a, 0);
+    if (this.#points.length > 0) {
+      const summary = (/** @type {number[]} */ ...arr) => arr.reduce((partialSum, a) => partialSum + a, 0);
 
-    const eventsCity = this.#tripEvents.map((event) => this.#destinationsModel.getById(event.destination).name);
+      const pointsCity = this.#points.map((point) => this.#destinations.get(point.destination)?.name || []);
 
-    const eventsDates = this.#tripEvents.map((event) => event.dateFrom);
+      const pointsDates = this.#points.map((point) => point.dateFrom);
 
-    const offersId = this.#tripEvents.map((event) => event.offers).flat();
-    const offersCost = offersId.map((id) => this.#offersModel.getById(id)?.price || 0);
-    const eventsCost = this.#tripEvents.map((event) => event.basePrice);
-    const tripCost = summary(...offersCost, ...eventsCost);
+      const offersId = this.#points.map((point) => point.offers).flat();
+      const offersCost = offersId.map((id) => this.#offersModel.getOffer(id)?.price || 0);
+      const pointsCost = this.#points.map((point) => point.basePrice);
+      const tripCost = summary(...offersCost, ...pointsCost);
 
-    this.#tripInfoComponent = new TripInfoView({ eventsDates, eventsCity, tripCost });
+      this.#tripInfoComponent = new TripInfoView({ pointsDates, pointsCity, tripCost });
 
-    render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
+      render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
+    }
+
+
   }
 
   destroy() {
     remove(this.#tripInfoComponent);
   }
 }
-
 
