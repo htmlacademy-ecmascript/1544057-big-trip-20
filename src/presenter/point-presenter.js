@@ -65,7 +65,7 @@ export default class PointPresenter {
       offersByTypes: this.#offersModel.offers,
       onCancelClick: this.resetView,
       onSubmitClick: this.#handleFormSubmit,
-      onDeleteClick: this.#handlerDeleteClick
+      onDeleteClick: this.#handleDeleteClick
     });
 
     if (!prevInfoComponent || !prevFormComponent) {
@@ -163,7 +163,7 @@ export default class PointPresenter {
       { ...point });
   };
 
-  #handlerDeleteClick = (point) => {
+  #handleDeleteClick = (point) => {
     this.#handleDataChange(
       UserAction.DELETE_POINT,
       UpdateType.MAJOR,

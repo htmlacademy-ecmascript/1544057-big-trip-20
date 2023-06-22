@@ -210,7 +210,7 @@ export default class BoardPresenter {
    * Очищает презентеры событий.
    * @private
    */
-  #clearBoard({ resetSortType = false, resetTripInfo = false } = {}) {
+  #clearBoard({ resetSortType = false } = {}) {
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointPresenters.clear();
     this.#newPointPresenter.destroy();
@@ -227,9 +227,8 @@ export default class BoardPresenter {
       this.#currentSortType = SortTypes.DEFAULT;
     }
 
-    if (resetTripInfo) {
-      this.#tripInfoPresenter.destroy();
-    }
+    this.#tripInfoPresenter.destroy();
+
   }
 
   /**
@@ -258,7 +257,7 @@ export default class BoardPresenter {
         break;
       case UpdateType.MINOR:
         this.#clearBoard();
-        this.#renderPointsBoard();
+        this.init();
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({ resetSortType: true, resetTripInfo: true });
@@ -280,6 +279,8 @@ export default class BoardPresenter {
     if (this.#pointsEmplyComponent) {
       remove(this.#pointsEmplyComponent);
     }
+
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
     this.createPoint();
     this.#newPointButtonComponent.element.disabled = true;
   };

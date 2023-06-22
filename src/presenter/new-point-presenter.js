@@ -1,6 +1,5 @@
 import { UpdateType, UserAction } from '../constants.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
-import { pointId } from '../mock/points-mock.js';
 import { checkEscKeydownPress } from '../utils/points.js';
 import PointFormView from '../view/point/point-form-view.js';
 
@@ -52,7 +51,7 @@ export default class NewPointPresenter {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MAJOR,
-      { ...point, id: `point-${pointId()}` },
+      { ...point },
     );
     this.destroy();
   };

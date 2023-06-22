@@ -34,7 +34,6 @@ import { humanizeDate } from '../../utils/points.js';
  */
 
 const BLANK_POINT = {
-  id: null,
   basePrice: null,
   dateFrom: null,
   dateTo: null,
@@ -254,7 +253,7 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
                     <span class="visually-hidden">Price</span>
                     &euro;
                   </label>
-                  <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price"  min="1" value="${pointPrice}" required>
+                  <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price"  min="1" max="100000" value="${pointPrice}" required>
                 </div>
 
                 ${buttonsTemplate}
@@ -280,7 +279,7 @@ export default class PointFormView extends AbstractStatefulView {
 
   #handlerCancelClick;
   #handlerSubmitClick;
-  #handlerDeleteClick;
+  #handleDeleteClick;
 
   #dateToPicker;
   #dateFromPicker;
@@ -300,7 +299,7 @@ export default class PointFormView extends AbstractStatefulView {
 
     this.#handlerCancelClick = onCancelClick;
     this.#handlerSubmitClick = onSubmitClick;
-    this.#handlerDeleteClick = onDeleteClick;
+    this.#handleDeleteClick = onDeleteClick;
 
 
     this.#destinationsByCities = new Map();
@@ -361,9 +360,7 @@ export default class PointFormView extends AbstractStatefulView {
     this.#dateToPicker = flatpickr(
       dateFrom,
       {
-        dateFormat: 'Y-m-dTH:i',
-        altInput: true,
-        altFormat: 'd/m/y H:i',
+        dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
         onChange: this.#dateFromChangeHandler,
         enableTime: true,
@@ -377,9 +374,7 @@ export default class PointFormView extends AbstractStatefulView {
     this.#dateFromPicker = flatpickr(
       dateTo,
       {
-        dateFormat: 'Y-m-dTH:i',
-        altInput: true,
-        altFormat: 'd/m/y H:i',
+        dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
         onChange: this.#dateToChangeHandler,
         enableTime: true,
@@ -396,12 +391,14 @@ export default class PointFormView extends AbstractStatefulView {
     this._setState({
       dateFrom: userDate
     });
+    this.#setDatepicker();
   };
 
   #dateToChangeHandler = ([userDate]) => {
     this._setState({
       dateTo: userDate
     });
+    this.#setDatepicker();
   };
 
   /**Обратывает отмену сохранения*/
@@ -417,7 +414,7 @@ export default class PointFormView extends AbstractStatefulView {
     event.preventDefault();
     switch (event.target.className) {
       case 'event__reset-btn':
-        this.#handlerDeleteClick(PointFormView.parseStateToPoint(this._state));
+        this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state));
         break;
       case 'event__save-btn  btn  btn--blue':
         this.#handlerSubmitClick(PointFormView.parseStateToPoint(this._state));
@@ -546,31 +543,18 @@ export default class PointFormView extends AbstractStatefulView {
    * @returns {Point}
    */
   static parseStateToPoint(state) {
-    const {
-      id,
-      basePrice,
-      dateFrom,
-      dateTo,
-      destination,
-      isFavorite,
-      offers,
-      type
-    } = state;
+    const offersArray = Array.from(state.offers.values());
 
-    const offersArray = Array.from(offers.values());
-
-    const pointOffers = offers ? offersArray.filter((offer) => offer.selected).map((offer) => offer.id) : [];
+    const pointOffers = offersArray.filter((offer) => offer.selected).map((offer) => offer.id);
 
     const point = {
-      id: id ? id : '',
-      basePrice: basePrice || 0,
-      dateFrom: dateFrom || '',
-      dateTo: dateTo || '',
-      destination: destination ? destination.id : '',
-      isFavorite,
+      ...state,
       offers: pointOffers,
-      type: type || ''
+      destination: state.destination.id
     };
+
+    delete point.availableTypes;
+    delete point.isEditForm;
 
     return point;
   }

@@ -93,13 +93,19 @@ export default class PointsModel extends Observable {
    * @param {string} updateType
    * @param {Point} update
    */
-  addPoint(updateType, update) {
+  async addPoint(updateType, update) {
     if (this.#points.has(update.id)) {
       throw new Error('Can\'t add, this task is existing');
     }
+    try {
+      const response = await this.#appApiService.addPoint(update);
+      const updatedPoint = this.#adaptToClient(response);
 
-    this.#points.set(update.id, update);
-    this._notify(updateType, update);
+      this.#points.set(update.id, updatedPoint);
+      this._notify(updateType, update);
+    } catch (error) {
+      throw new Error('Can\'t add point');
+    }
   }
 
   /**
@@ -107,13 +113,19 @@ export default class PointsModel extends Observable {
    * @param {string} updateType
    * @param {Point} update
    */
-  deletePoint(updateType, update) {
+  async deletePoint(updateType, update) {
     if (!this.#points.has(update.id)) {
       throw new Error('Can\'t delete unexisting task');
     }
 
-    this.#points.delete(update.id);
-    this._notify(updateType, update);
+    try {
+      await this.#appApiService.deletePoint(update);
+      this.#points.delete(update.id);
+
+      this._notify(updateType, update);
+    } catch (error) {
+      throw new Error('Can\'t delete point');
+    }
   }
 
   /**
