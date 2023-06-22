@@ -48,6 +48,11 @@ const Method = {
   POST: 'POST',
 };
 
+const ShakeTimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 export {
   AUTHORIZATION,
   FilterTypes,
@@ -58,6 +63,7 @@ export {
   POINT_FORM_FORMAT,
   POINT_INFO_FORMAT,
   RENDER_DATE_FORMAT,
+  ShakeTimeLimit,
   SortTypes,
   UpdateType,
   Urls,
