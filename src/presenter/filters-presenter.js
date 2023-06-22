@@ -20,16 +20,16 @@ export default class FiltersPresenter extends Observable {
 
   #filterComponent;
 
-  /** @param {{pointsModel: PointsModel, FiltersContainer: HTMLElement, filterModel: FilterModel}} params*/
-  constructor({ pointsModel, FiltersContainer, filterModel }) {
+  /** @param {{pointsModel: PointsModel, filtersContainer: HTMLElement, filterModel: FilterModel}} params*/
+  constructor({ pointsModel, filtersContainer, filterModel }) {
     super();
-    this.#filtersContainer = FiltersContainer;
+    this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
 
     this.#pointsModel.addObserver(this.#handleModelPoint);
-    this.#filterModel.addObserver(this.#handleModelPoint);
+    // this.#filterModel.addObserver(this.#handleModelPoint);
   }
 
   get filters() {

@@ -10,7 +10,7 @@ import { POINT_TYPES } from './constants-mock.js';
 
 export const pointId = getRandomIntGenerator();
 /**
- * @typedef PointObject
+ * @typedef Point
  * @type {Object}
  * @property {string} id
  * @property {number} basePrice
@@ -24,7 +24,7 @@ export const pointId = getRandomIntGenerator();
 
 /**
  * Функция для генерации события
- * @returns {PointObject}
+ * @returns {Point}
  */
 export const generatePoint = () => {
   let day = getRandomInteger(1, 28);

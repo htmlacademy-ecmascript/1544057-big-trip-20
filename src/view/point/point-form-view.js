@@ -15,7 +15,7 @@ import { humanizeDate } from '../../utils/points.js';
  * @typedef {import('../../model/offers-model.js').OffersByType} OffersByType
  * @typedef {import('../../model/destinations-model.js').Destinations} Destinations
  * @typedef {import('../../model/destinations-model.js').Destination} Destination
- * @typedef { import('../../model/points-model.js').PointObject } PointObject
+ * @typedef { import('../../model/points-model.js').Point } Point
  */
 
 /**
@@ -276,16 +276,20 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
 export default class PointFormView extends AbstractStatefulView {
   #destinations;
   #offersByTypes;
+  #destinationsByCities;
+
   #handlerCancelClick;
   #handlerSubmitClick;
   #handlerDeleteClick;
-  #destinationsByCities;
+
   #dateToPicker;
   #dateFromPicker;
 
+  #saveButton;
+
   /**
    * Конструктор компонента формы события
-   * @param {{point: PointObject | BLANK_POINT, destinations: Destinations, offersByTypes: OffersByType, onCancelClick: function, onSubmitClick: function}} params
+   * @param {{point: Point | BLANK_POINT, destinations: Destinations, offersByTypes: OffersByType, onCancelClick: function, onSubmitClick: function}} params
    */
   constructor({ point = BLANK_POINT, destinations, offersByTypes, onCancelClick, onDeleteClick, onSubmitClick }) {
     super();
@@ -311,7 +315,7 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**
    * Сбрасывает состояние на изначальное
-   * @param {PointObject} point
+   * @param {Point} point
    */
   reset = (point) => {
     const prevState = PointFormView.parsePointToState(point, this.#offersByTypes, this.#destinations);
@@ -347,7 +351,9 @@ export default class PointFormView extends AbstractStatefulView {
     return !this._state.destination ||
       !this._state.basePrice ||
       !this._state.dateFrom ||
-      !this._state.dateTo;
+      !this._state.dateTo ||
+      this._state.dateFrom >
+      this._state.dateTo;
   }
 
   #setDatepicker = () => {
@@ -429,9 +435,11 @@ export default class PointFormView extends AbstractStatefulView {
    */
   //Валидирует сразу все input
   #inputsChangeHandler = (event) => {
-    const saveButton = this.element.querySelector('.event__save-btn');
-    const fileldType = event.target.className.split('--')[1] || event.target.className;
+    const fileldType = event.target.className.split('--')[1] || event.target.className.split(' ')[0];
 
+    if (fileldType.includes('event__type')) {
+      return;
+    }
     /**
    * Обновляет basePrice
    * @param {?EventTarget} target
@@ -481,25 +489,32 @@ export default class PointFormView extends AbstractStatefulView {
       case 'price':
         updateBasePrice(event.target);
         break;
-      case 'event__offer-checkbox  visually-hidden':
+      case 'event__offer-checkbox':
         updateOfferSelect(event.target);
         break;
       default:
     }
 
-    saveButton.disabled = this.#isSubmitDisabled();
+    this.#saveButton = this.element.querySelector('.event__save-btn');
+
+    this.#saveButton.disabled = this.#isSubmitDisabled();
   };
 
   /**@param {Event} event*/
   #typeChangeHandler = (event) => {
-    const value = event.target.value;
-    const type = value.charAt(0).toUpperCase() + value.slice(1);
+    const type = event.target.value;
     const offers = this.#offersByTypes.get(type);
+    offers.forEach((/** @type {Offer & {selected: boolean} }} */ offer) => {
+      offer.selected = false;
+    });
     this.updateElement({ type, offers });
+
+    this.#saveButton = this.element.querySelector('.event__save-btn');
+    this.#saveButton.disabled = this.#isSubmitDisabled();
   };
 
   /**
-   * @param {PointObject | BLANK_POINT} point
+   * @param {Point | BLANK_POINT} point
    * @param {OffersByType} offersByTypes
    * @param {Destinations} destinations
    * @returns {State}
@@ -528,7 +543,7 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**
    * @param {State} state
-   * @returns {PointObject}
+   * @returns {Point}
    */
   static parseStateToPoint(state) {
     const {

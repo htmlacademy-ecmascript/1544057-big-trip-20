@@ -39,10 +39,11 @@ export default class NewPointPresenter {
     if (!this.#newPointView) {
       return;
     }
-    this.#handleDestroy();
 
     remove(this.#newPointView);
     this.#newPointView = undefined;
+
+    this.#handleDestroy();
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
@@ -50,7 +51,7 @@ export default class NewPointPresenter {
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
-      UpdateType.MINOR,
+      UpdateType.MAJOR,
       { ...point, id: `point-${pointId()}` },
     );
     this.destroy();

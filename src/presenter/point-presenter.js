@@ -5,7 +5,7 @@ import PointFormView from '../view/point/point-form-view.js';
 import PointInfoView from '../view/point/point-info-view.js';
 
 /** Пересентер события */
-/**@typedef {import('./page-presenter.js').PointObject}  PointObject*/
+/**@typedef {import('./page-presenter.js').Point}  Point*/
 /**@typedef {import('../model/offers-model.js').Offer} Offer */
 /**@typedef {import('../model/destinations-model.js').default}  DestinationsModel*/
 /**@typedef {import('../model/offers-model.js').default}  OffersModel*/
@@ -25,7 +25,7 @@ export default class PointPresenter {
   #pointFormComponent;
   #handleDataChange;
   #handleModeChange;
-  /**@type{PointObject} */
+  /**@type{Point} */
   #point;
   #mode = Mode.DEFAULT;
 
@@ -41,7 +41,7 @@ export default class PointPresenter {
   }
 
   /**
-   * @param {PointObject} point
+   * @param {Point} point
    */
   init(point) {
     this.#point = point;
@@ -144,7 +144,7 @@ export default class PointPresenter {
 
   /**
    * Обработчик сохранения данных формы
-   * @param {PointObject} point
+   * @param {Point} point
    */
   #handleFormSubmit = (point) => {
     if (point.id.trim().length < 1) {
