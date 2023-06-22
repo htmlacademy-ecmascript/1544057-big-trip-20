@@ -4,7 +4,7 @@ import AbstractView from '../../framework/view/abstract-view';
 import { calculateDuration, humanizeDate } from '../../utils/points';
 
 /**
- * @typedef {import('../../presenter/page-presenter').PointObject} PointObject
+ * @typedef {import('../../presenter/page-presenter').Point} Point
  * @typedef {import('../../model/offers-model').OffersByType} OffersByType
  * @typedef {import('../../model/destinations-model').Destinations} Destinations
  * /
@@ -29,7 +29,7 @@ const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join(
 
 /**
  *
- * @param {PointObject} params
+ * @param {Point} params
  * @returns
  */
 const createPointInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, basePrice, isFavorite }) => `
@@ -74,7 +74,7 @@ export default class PointInfoView extends AbstractView {
   #handleFavoriteClick;
 
   /**
-   * @param {{point: PointObject, destinations: Destinations, offersByType: OffersByType,  onEditButtonClick: function, onFavoriteClick: function}} params
+   * @param {{point: Point, destinations: Destinations, offersByType: OffersByType,  onEditButtonClick: function, onFavoriteClick: function}} params
    */
   constructor({ point, destinations, offersByType, onEditButtonClick, onFavoriteClick }) {
     super();
@@ -95,8 +95,8 @@ export default class PointInfoView extends AbstractView {
   /**
    * Parses an point object and extracts the relevant information.
    *
-   * @param {PointObject} point - The point object containing extended point information.
-   * @returns {PointObject} - The parsed point object with destination and offers properties.
+   * @param {Point} point - The point object containing extended point information.
+   * @returns {Point} - The parsed point object with destination and offers properties.
    */
   #parsePoint(point) {
     const offersByType = this.#offersByType.get(point.type) || new Map();

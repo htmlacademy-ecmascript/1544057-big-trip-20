@@ -13,24 +13,31 @@ import {
   sortPointsByOffersLength,
   sortPointsByPrice,
 } from '../utils/points.js';
+import LoadingView from '../view/loading-view.js';
+import newPointButtonView from '../view/new-point-button-view';
 import PointsEmplyView from '../view/points-emply-view.js';
 import PointsListView from '../view/points-list-view.js';
 import PointsSortView from '../view/points-sort-view.js';
+import FiltersPresenter from './filters-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import PointPresenter from './point-presenter.js';
+import TripInfoPresenter from './trip-info-presenter.js';
 
-/**@typedef {import('../model/points-model.js').PointObject} PointObject */
+/**@typedef {import('../model/points-model.js').Point} Point */
 /**@typedef {import('../model/points-model.js').Points}  Points*/
 /**@typedef {import('../model/offers-model.js').default} OffersModel */
 /**@typedef {import('../model/destinations-model.js').default} DestinationsModel */
 /**@typedef {import('../model/points-model.js').default} DestinationsModel */
 /**@typedef {import('../model/points-model.js').default} PointsModel */
-/**@typedef {import('../model/points-model.js').default} FilterModel */
+/**@typedef {import('../model/filter-model.js').default} FilterModel */
 
 /**
  * Презентер страницы.
  */
-export default class PointsBoardPresenter {
+export default class BoardPresenter {
+  #pageContainer;
+  #headerContainer;
+  #filterContiner;
   #pointsConstainer;
 
   #destinationsModel;
@@ -40,34 +47,57 @@ export default class PointsBoardPresenter {
 
   #pointsEmplyComponent;
   #sortsComponent;
-  #pointsListComponent;
+  #newPointButtonComponent;
+
+  #pointsListComponent = new PointsListView();
+  #loadingComponent = new LoadingView();
 
   /**@type{Map<string, PointPresenter>} */
+  #tripInfoPresenter;
+  #filtersPresenter;
   #pointPresenters = new Map();
   #newPointPresenter;
 
   #currentSortType = SortTypes.DEFAULT;
   #filterType = FilterTypes.EVERYTHING;
+  #isLoading = true;
 
   /**
    * Конструктор доски точек маршрута
-   * @param {{points: PointsModel, destinationsModel: DestinationsModel, offersModel: OffersModel, pointsConstainer: HTMLElement, filterModel: FilterModel, onNewTaskDestroy: function}} paramы
+   * @param {{pointsModel: PointsModel, destinationsModel: DestinationsModel, offersModel: OffersModel, container: HTMLElement, filterModel: FilterModel, onNewTaskDestroy: function}} paramы
    */
-  constructor({ destinationsModel, pointsModel, offersModel, pointsConstainer, filterModel, onNewTaskDestroy }) {
+  constructor({ destinationsModel, pointsModel, offersModel, container, filterModel }) {
     this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#filterModel = filterModel;
 
-    this.#pointsListComponent = new PointsListView();
-    this.#pointsConstainer = pointsConstainer;
+    this.#pageContainer = container;
+    this.#headerContainer = this.#pageContainer.querySelector('.trip-main');
+    this.#filterContiner = this.#headerContainer.querySelector('.trip-controls__filters');
+    this.#pointsConstainer = this.#pageContainer.querySelector('.trip-events');
 
     this.#newPointPresenter = new NewPointPresenter({
       pointsListContainer: this.#pointsListComponent.element,
       onDataChange: this.#handleViewAction,
-      onDestroy: onNewTaskDestroy
+      onDestroy: this.#handleNewPointFormClose
     });
 
+    this.#tripInfoPresenter = new TripInfoPresenter({
+      container: this.#headerContainer,
+      destinationsModel: destinationsModel,
+      offersModel,
+    });
+
+    this.#filtersPresenter = new FiltersPresenter({
+      pointsModel,
+      filterModel,
+      filtersContainer: this.#filterContiner
+    });
+
+    this.#newPointButtonComponent = new newPointButtonView({
+      onClick: this.#handleNewPointButtonClick
+    });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -83,7 +113,19 @@ export default class PointsBoardPresenter {
   }
 
   init() {
+
+    render(this.#pointsListComponent, this.#pointsConstainer, RenderPosition.BEFOREEND);
+    render(this.#newPointButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
+    this.#filtersPresenter.init();
+
     if (this.points.length > 0) {
+      this.#tripInfoPresenter.init(this.points);
       this.#renderPointsBoard();
 
       return;
@@ -94,7 +136,6 @@ export default class PointsBoardPresenter {
 
   createPoint() {
     this.#currentSortType = SortTypes.DEFAULT;
-    this.#filterModel.setFilter(UpdateType.MAJOR, FilterTypes.EVERYTHING);
     this.#newPointPresenter.init({
       destinationsModel: this.#destinationsModel,
       offersModel: this.#offersModel
@@ -121,12 +162,14 @@ export default class PointsBoardPresenter {
     }
   }
 
-  #renderEmplyPoints() {
-    this.#pointsEmplyComponent = new PointsEmplyView({
-      selectFilter: this.#filterType
-    });
+  #renderLoading() {
+    render(this.#loadingComponent, this.#pointsListComponent.element, RenderPosition.AFTERBEGIN);
+  }
 
-    render(this.#pointsEmplyComponent, this.#pointsConstainer, RenderPosition.BEFOREEND);
+  #renderEmplyPoints() {
+    this.#pointsEmplyComponent = new PointsEmplyView({ selectFilter: this.#filterType });
+
+    render(this.#pointsEmplyComponent, this.#pointsListComponent.element, RenderPosition.BEFOREEND);
   }
 
   /**
@@ -148,7 +191,6 @@ export default class PointsBoardPresenter {
    */
   #renderPointsBoard() {
     this.#renderSorts();
-    render(this.#pointsListComponent, this.#pointsConstainer, RenderPosition.BEFOREEND);
 
     this.points.forEach((point) => {
       const pointPresenter = new PointPresenter({
@@ -168,26 +210,30 @@ export default class PointsBoardPresenter {
    * Очищает презентеры событий.
    * @private
    */
-  #clearPointsBoard({ resetSortType = false } = {}) {
+  #clearBoard({ resetSortType = false } = {}) {
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointPresenters.clear();
     this.#newPointPresenter.destroy();
 
-    remove(this.#sortsComponent);
+    if (this.#sortsComponent) {
+      remove(this.#sortsComponent);
+    }
 
     if (this.#pointsEmplyComponent) {
       remove(this.#pointsEmplyComponent);
     }
 
-
     if (resetSortType) {
       this.#currentSortType = SortTypes.DEFAULT;
     }
+
+    this.#tripInfoPresenter.destroy();
+
   }
 
   /**
   * Обработчик изменения данных события.
-  * @param {PointObject} updatePoint - Обновленное событие.
+  * @param {Point} updatePoint - Обновленное событие.
   * @private
   */
   #handleViewAction = (actionType, updateType, update) => {
@@ -210,21 +256,40 @@ export default class PointsBoardPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearPointsBoard();
-        this.#renderPointsBoard();
+        this.#clearBoard();
+        this.init();
         break;
       case UpdateType.MAJOR:
-        this.#clearPointsBoard({ resetSortType: true });
+        this.#clearBoard({ resetSortType: true, resetTripInfo: true });
+        this.init();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.init();
         break;
     }
   };
 
+  #handleNewPointFormClose = () => {
+    this.#newPointButtonComponent.element.disabled = false;
+  };
+
+  #handleNewPointButtonClick = () => {
+    if (this.#pointsEmplyComponent) {
+      remove(this.#pointsEmplyComponent);
+    }
+
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    this.createPoint();
+    this.#newPointButtonComponent.element.disabled = true;
+  };
+
   /**
- * Обработчик изменения типа сортировки.
- * @param {string} sortType - Тип сортировки.
- * @private
- */
+* Обработчик изменения типа сортировки.
+* @param {string} sortType - Тип сортировки.
+* @private
+*/
   #handleSortTypeChange = (sortType) => {
     const type = sortType.split('-')[1];
     if (this.#currentSortType === sortType) {
@@ -232,7 +297,7 @@ export default class PointsBoardPresenter {
     }
 
     this.#currentSortType = type;
-    this.#clearPointsBoard();
+    this.#clearBoard();
     this.#renderPointsBoard();
   };
 

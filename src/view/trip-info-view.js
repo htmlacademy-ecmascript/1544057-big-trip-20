@@ -3,21 +3,21 @@ import AbstractView from '../framework/view/abstract-view';
 import { humanizeDate } from '../utils/points';
 
 //Amsterdam & mdash; Chamonix & mdash; Geneva;
-const renderCites = (cites) => {
-  const uniqCites = [...new Set(cites)];
+const renderCities = (cities) => {
+  const uniqCities = [...new Set(cities)];
   let result;
-  switch (uniqCites.length) {
+  switch (uniqCities.length) {
     case 1:
-      result = uniqCites.at();
+      result = uniqCities.at();
       break;
     case 2:
-      result = `${uniqCites.at()}  &mdash; ${uniqCites.at(-1)} `;
+      result = `${uniqCities.at()}  &mdash; ${uniqCities.at(-1)} `;
       break;
     case 3:
-      result = `${uniqCites.at()} &mdash; ${uniqCites.at(1)}  &mdash; ${uniqCites.at(-1)} `;
+      result = `${uniqCities.at()} &mdash; ${uniqCities.at(1)}  &mdash; ${uniqCities.at(-1)} `;
       break;
     default:
-      result = `${uniqCites.at()} &mdash;... &mdash; ${uniqCites.at(-1)} `;
+      result = `${uniqCities.at()} &mdash;... &mdash; ${uniqCities.at(-1)} `;
   }
   return result;
 };
@@ -34,9 +34,9 @@ const renderTripDate = (dates) => {
   return result;
 };
 
-const createTripInfoTemplate = ({ dates, cites, tripCost }) => `<section class="trip-main__trip-info  trip-info">
+const createTripInfoTemplate = ({ dates, cities, tripCost }) => `<section class="trip-main__trip-info  trip-info">
             <div class="trip-info__main">
-              <h1 class="trip-info__title">${renderCites(cites)}</h1>
+              <h1 class="trip-info__title">${renderCities(cities)}</h1>
 
               <p class="trip-info__dates">${renderTripDate(dates)}</p>
             </div>
@@ -59,6 +59,6 @@ export default class TripInfoView extends AbstractView {
   }
 
   get template() {
-    return createTripInfoTemplate({ dates: this.#pointsDates, cites: this.#pointsCity, tripCost: this.#tripCost });
+    return createTripInfoTemplate({ dates: this.#pointsDates, cities: this.#pointsCity, tripCost: this.#tripCost });
   }
 }

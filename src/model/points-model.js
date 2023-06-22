@@ -1,36 +1,47 @@
-//@ts-check
-import { MAX_POINTS, MAX_SELECT_OFFERS, MIN_POINTS } from '../constants';
+import { UpdateType } from '../constants.js';
 import Observable from '../framework/observable.js';
-import { getRandomArrayElement, getRandomInteger } from '../mock/commons';
-import { generatePoint } from '../mock/points-mock';
 
 /**
- * @typedef {import('../mock/points-mock').PointObject} PointObject
+ * @typedef {import('../mock/points-mock').Point} Point
  * @typedef {import('./offers-model').OffersByType} OffersByType
  * @typedef {import('./destinations-model').Destinations} Destinations
+ * @typedef { import('../app-api-service').default} AppApiService
  */
 
 /**
  * @typedef Points
- * @type {Array<PointObject>}
+ * @type {Array<Point>}
+ */
+
+/**
+ * @typedef MapPoints
+ * @type {Map<string, Point>}
+ */
+
+/**
+ * @typedef ServerPoint
+ * @type {object}
+ * @property {string} id
+ * @property {number} base_price
+ * @property {string} date_from
+ * @property {string} date_to
+ * @property {string} destination
+ * @property {boolean} is_favorite
+ * @property {Array<string>} offers
+ * @property {string} type
  */
 
 export default class PointsModel extends Observable {
-  #destinations;
-  #offers;
+  #appApiService;
+  /** @type {MapPoints} */
   #points = new Map();
 
   /**
-   * @param {{destinations: Destinations, offers: OffersByType}} params
+   * @param {{appApiService: AppApiService}} props
    */
-  constructor({ destinations, offers }) {
+  constructor({ appApiService }) {
     super();
-    this.#destinations = destinations;
-    this.#offers = offers;
-
-    const generatePoints = Array.from({ length: getRandomInteger(MIN_POINTS, MAX_POINTS) }, this.#generatePoint);
-
-    generatePoints.forEach((point) => this.#points.set(point.id, point));
+    this.#appApiService = appApiService;
   }
 
   /**
@@ -40,61 +51,101 @@ export default class PointsModel extends Observable {
     return Array.from(this.#points.values());
   }
 
+  async init() {
+    try {
+      const points = await this.#appApiService.points;
+
+      points.forEach((point) => {
+        const adaptPoint = this.#adaptToClient(point);
+
+        this.#points.set(adaptPoint.id, adaptPoint);
+      });
+    } catch (error) {
+      this.#points = new Map();
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
   /**
    * Обновляет определенный point
    * @param {string} updateType
-   * @param {PointObject} update
+   * @param {Point} update
    */
-  updatePoint(updateType, update) {
+  async updatePoint(updateType, update) {
     if (!this.#points.has(update.id)) {
       throw new Error('Can\'t update unexisting point');
     }
 
-    this.#points = this.#points.set(update.id, update);
+    try {
+      const response = await this.#appApiService.updatePoint(update);
+      const updatedPoint = this.#adaptToClient(response);
 
-    this._notify(updateType, update);
+      this.#points = this.#points.set(updatedPoint.id, updatedPoint);
+      this._notify(updateType, updatedPoint);
+    } catch (err) {
+      throw new Error('Can\'t update point');
+    }
   }
 
   /**
    * Добавляет новый point
    * @param {string} updateType
-   * @param {PointObject} update
+   * @param {Point} update
    */
-  addPoint(updateType, update) {
+  async addPoint(updateType, update) {
     if (this.#points.has(update.id)) {
       throw new Error('Can\'t add, this task is existing');
     }
+    try {
+      const response = await this.#appApiService.addPoint(update);
+      const updatedPoint = this.#adaptToClient(response);
 
-    this.#points.set(update.id, update);
-    this._notify(updateType, update);
+      this.#points.set(update.id, updatedPoint);
+      this._notify(updateType, update);
+    } catch (error) {
+      throw new Error('Can\'t add point');
+    }
   }
 
   /**
    * Удаляет опеределенный point
    * @param {string} updateType
-   * @param {PointObject} update
+   * @param {Point} update
    */
-  deletePoint(updateType, update) {
+  async deletePoint(updateType, update) {
     if (!this.#points.has(update.id)) {
       throw new Error('Can\'t delete unexisting task');
     }
 
-    this.#points.delete(update.id);
-    this._notify(updateType, update);
+    try {
+      await this.#appApiService.deletePoint(update);
+      this.#points.delete(update.id);
+
+      this._notify(updateType, update);
+    } catch (error) {
+      throw new Error('Can\'t delete point');
+    }
   }
 
   /**
-   * Генерерирует point из mock-ов
-   * @returns {PointObject}
+   * @param {ServerPoint} point
+   * @returns {MapPoints}
    */
-  #generatePoint = () => {
-    const point = generatePoint();
-    const offers = this.#offers.get((point.type)) || [];
+  #adaptToClient(point) {
+    const adaptPoint = {
+      ...point,
+      dateFrom: point.date_from,
+      dateTo: point.date_to,
+      basePrice: point.base_price,
+      isFavorite: point.is_favorite
+    };
 
-    point.destination = getRandomArrayElement([...this.#destinations.values()]).id;
-    point.offers = [...offers.values()].splice(0, getRandomInteger(1, MAX_SELECT_OFFERS)).map((offer) => offer.id);
+    delete adaptPoint.date_from;
+    delete adaptPoint.date_to;
+    delete adaptPoint.base_price;
+    delete adaptPoint.is_favorite;
 
-    return point;
-  };
-
+    return adaptPoint;
+  }
 }

@@ -1,6 +1,5 @@
 import { UpdateType, UserAction } from '../constants.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
-import { pointId } from '../mock/points-mock.js';
 import { checkEscKeydownPress } from '../utils/points.js';
 import PointFormView from '../view/point/point-form-view.js';
 
@@ -39,10 +38,11 @@ export default class NewPointPresenter {
     if (!this.#newPointView) {
       return;
     }
-    this.#handleDestroy();
 
     remove(this.#newPointView);
     this.#newPointView = undefined;
+
+    this.#handleDestroy();
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
@@ -50,8 +50,8 @@ export default class NewPointPresenter {
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
-      UpdateType.MINOR,
-      { ...point, id: `point-${pointId()}` },
+      UpdateType.MAJOR,
+      { ...point },
     );
     this.destroy();
   };

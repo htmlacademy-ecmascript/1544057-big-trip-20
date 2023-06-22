@@ -1,15 +1,27 @@
-//@ts-check
-import { generateOffers } from '../mock/offers-mock';
+import Observable from '../framework/observable.js';
 
-/**@typedef {import('../mock/offers-mock').Offer} Offer*/
-/**@typedef {Map<string, Map<string, Offer>>} OffersByType*/
-
-export default class OffersModel {
-  #OffersByType = new Map();
+export default class OffersModel extends Observable {
+  #appApiService;
+  #offersByType = new Map();
   #offers = new Map();
 
-  constructor() {
-    generateOffers().forEach((typeOffer) => {
+  /** @param {{appApiService: AppApiService}} props*/
+  constructor({ appApiService }) {
+    super();
+    this.#appApiService = appApiService;
+  }
+
+  /**
+   * @returns {OffersByType}
+   */
+  get offers() {
+    return this.#offersByType;
+  }
+
+  async init() {
+    const OffersByType = await this.#appApiService.offers;
+
+    OffersByType.forEach((typeOffer) => {
       const offers = new Map();
 
       typeOffer.offers.forEach((offer) => {
@@ -17,21 +29,14 @@ export default class OffersModel {
         offers.set(offer.id, offer);
       });
 
-      this.#OffersByType.set(typeOffer.type, offers);
+      this.#offersByType.set(typeOffer.type, offers);
     });
   }
 
   /**
-   * @returns {OffersByType}
+   * @param {string} id
+   * @returns {Offer|undefined}
    */
-  get offers() {
-    return this.#OffersByType;
-  }
-
-  /**
- * @param {string} id
- * @returns {Offer|undefined}
- */
   getOffer(id) {
     return this.#offers.get(id);
   }
