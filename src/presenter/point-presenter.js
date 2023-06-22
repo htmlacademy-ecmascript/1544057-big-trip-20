@@ -78,7 +78,8 @@ export default class PointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#pointFormComponent, prevFormComponent);
+      replace(this.#pointInfoComponent, prevFormComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevInfoComponent);
@@ -94,6 +95,49 @@ export default class PointPresenter {
       this.#replaceFormToInfo();
     }
   };
+
+  /**
+  * Удаляет компонент
+  */
+  destroy() {
+    remove(this.#pointInfoComponent);
+    remove(this.#pointFormComponent);
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointFormComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointFormComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointInfoComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#pointFormComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointFormComponent.shake(resetFormState);
+  }
 
   /**
    * Переводит карточку на режим редактирования
@@ -112,14 +156,6 @@ export default class PointPresenter {
     document.removeEventListener('keydown', this.#ecsKeydownHandler);
     this.#mode = Mode.DEFAULT;
   };
-
-  /**
-  * Удаляет компонент
-  */
-  destroy() {
-    remove(this.#pointInfoComponent);
-    remove(this.#pointFormComponent);
-  }
 
   /**
    * Обработчик нажатия ESCAPE
@@ -147,16 +183,6 @@ export default class PointPresenter {
    * @param {Point} point
    */
   #handleFormSubmit = (point) => {
-    if (point.id.trim().length < 1) {
-      throw new Error('Нету функции добавления нового события');
-    }
-
-    if (point.dateFrom instanceof Date) {
-      // В модели дата храниться в другом формате
-    }
-
-    this.#replaceFormToInfo();
-
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,

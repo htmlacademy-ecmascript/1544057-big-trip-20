@@ -1,11 +1,13 @@
 //@ts-checks
 import {
   FilterTypes,
+  ShakeTimeLimit,
   SortTypes,
   UpdateType,
   UserAction,
 } from '../constants.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { filters } from '../utils/filters.js';
 import {
   sortPointsByDate,
@@ -51,6 +53,10 @@ export default class BoardPresenter {
 
   #pointsListComponent = new PointsListView();
   #loadingComponent = new LoadingView();
+  #uiBlocker = new UiBlocker({
+    lowerLimit: ShakeTimeLimit.LOWER_LIMIT,
+    upperLimit: ShakeTimeLimit.UPPER_LIMIT
+  });
 
   /**@type{Map<string, PointPresenter>} */
   #tripInfoPresenter;
@@ -113,7 +119,6 @@ export default class BoardPresenter {
   }
 
   init() {
-
     render(this.#pointsListComponent, this.#pointsConstainer, RenderPosition.BEFOREEND);
     render(this.#newPointButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
 
@@ -187,7 +192,6 @@ export default class BoardPresenter {
 
   /**
    * Рендерит компоненты для блока событий
-   * @private
    */
   #renderPointsBoard() {
     this.#renderSorts();
@@ -210,7 +214,7 @@ export default class BoardPresenter {
    * Очищает презентеры событий.
    * @private
    */
-  #clearBoard({ resetSortType = false } = {}) {
+  #clearBoard({ resetSortType = false, resetTripInfo = false } = {}) {
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointPresenters.clear();
     this.#newPointPresenter.destroy();
@@ -226,8 +230,9 @@ export default class BoardPresenter {
     if (resetSortType) {
       this.#currentSortType = SortTypes.DEFAULT;
     }
-
-    this.#tripInfoPresenter.destroy();
+    if (resetTripInfo) {
+      this.#tripInfoPresenter.destroy();
+    }
 
   }
 
@@ -236,18 +241,38 @@ export default class BoardPresenter {
   * @param {Point} updatePoint - Обновленное событие.
   * @private
   */
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#pointPresenters.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch (error) {
+          this.#pointPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (error) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#pointPresenters.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (error) {
+          this.#pointPresenters.get(update.id).setAborting();
+        }
         break;
+
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -256,7 +281,7 @@ export default class BoardPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearBoard();
+        this.#clearBoard({ resetTripInfo: true });
         this.init();
         break;
       case UpdateType.MAJOR:
@@ -297,8 +322,8 @@ export default class BoardPresenter {
     }
 
     this.#currentSortType = type;
-    this.#clearBoard();
-    this.#renderPointsBoard();
+    this.#clearBoard({ resetTripInfo: true });
+    this.init();
   };
 
   #handleModeChange = () => {
