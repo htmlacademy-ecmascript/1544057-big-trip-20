@@ -23,9 +23,9 @@ const calculateDuration = (start, stop) => {
  * @param {KeyboardPoint} point
  * @param {function} func
  */
-const checkEscKeydownPress = (event, func) => {
-  if (event.key === 'Escape') {
-    event.preeventDefault();
+const checkEscKeydownPress = (evt, func) => {
+  if (evt.key === 'Escape') {
+    evt.preeventDefault();
     func();
   }
 };

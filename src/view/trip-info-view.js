@@ -5,32 +5,52 @@ import { humanizeDate } from '../utils/points';
 //Amsterdam & mdash; Chamonix & mdash; Geneva;
 const renderCities = (cities) => {
   const uniqCities = [...new Set(cities)];
+
+  const firstCity = uniqCities.at();
+  const secondCity = uniqCities.at(1);
+  const lastCity = uniqCities.at(-1);
+
+  const CITY_COUNT = {
+    ONE: 1,
+    TWO: 2,
+    THREE: 3,
+  };
+
+
   let result;
   switch (uniqCities.length) {
-    case 1:
-      result = uniqCities.at();
+    case CITY_COUNT.ONE:
+      result = firstCity;
       break;
-    case 2:
-      result = `${uniqCities.at()}  &mdash; ${uniqCities.at(-1)} `;
+    case CITY_COUNT.TWO:
+      result = `${firstCity}  &mdash; ${lastCity} `;
       break;
-    case 3:
-      result = `${uniqCities.at()} &mdash; ${uniqCities.at(1)}  &mdash; ${uniqCities.at(-1)} `;
+    case CITY_COUNT.THREE:
+      result = `${firstCity} &mdash; ${secondCity}  &mdash; ${lastCity} `;
       break;
     default:
-      result = `${uniqCities.at()} &mdash;... &mdash; ${uniqCities.at(-1)} `;
+      result = `${firstCity} &mdash;... &mdash; ${lastCity} `;
   }
   return result;
 };
 
 const renderTripDate = (dates) => {
+  const firstDate = humanizeDate(dates.at(), RENDER_DATE_FORMAT);
+  const lastDate = humanizeDate(dates.at(-1), RENDER_DATE_FORMAT);
+
+  const DATE_COUNT = {
+    ONE: 1,
+  };
+
   let result;
   switch (dates.length) {
-    case 1:
-      result = humanizeDate(dates.at(), RENDER_DATE_FORMAT);
+    case DATE_COUNT.ONE:
+      result = firstDate;
       break;
     default:
-      result = `${humanizeDate(dates.at(), RENDER_DATE_FORMAT)}&nbsp;&mdash;&nbsp;${humanizeDate(dates.at(-1), RENDER_DATE_FORMAT)}`;
+      result = `${firstDate}&nbsp;&mdash;&nbsp;${lastDate}`;
   }
+
   return result;
 };
 
