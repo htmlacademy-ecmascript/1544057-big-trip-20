@@ -1,7 +1,7 @@
-import { UpdateType, UserAction } from '../constants.js';
-import { remove, render, RenderPosition } from '../framework/render.js';
-import { checkEscKeydownPress } from '../utils/points.js';
-import PointFormView from '../view/point/point-form-view.js';
+import { UpdateType, UserAction } from '../constants';
+import { remove, render, RenderPosition } from '../framework/render';
+import { checkEscKeydownPress } from '../utils/points';
+import PointFormView from '../view/point/point-form-view';
 
 export default class NewPointPresenter {
   #pointsListContainer;

@@ -67,6 +67,13 @@ const sortPointsByDuration = (points) =>
     return durationB - durationA;
   });
 
+const FieldTypes = {
+  DESTINATION: 'event__input  event__input--destination',
+  PRICE: 'event__input  event__input--price',
+  OFFER: 'event__offer-checkbox  visually-hidden',
+  TYPE: 'event__type'
+};
+
 export {
   calculateDuration,
   checkEscKeydownPress,

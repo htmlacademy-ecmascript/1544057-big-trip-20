@@ -4,7 +4,7 @@
  * @property {function} onClick - Обработчик клика по кнопке
  */
 
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractView from '../framework/view/abstract-view';
 
 /**
  * Создает HTML-шаблон кнопки "New event".

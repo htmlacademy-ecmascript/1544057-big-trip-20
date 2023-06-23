@@ -1,11 +1,23 @@
-import { UpdateType } from '../constants.js';
-import Observable from '../framework/observable.js';
+import { UpdateType } from '../constants';
+import Observable from '../framework/observable';
 
 /**
- * @typedef {import('../mock/points-mock').Point} Point
  * @typedef {import('./offers-model').OffersByType} OffersByType
  * @typedef {import('./destinations-model').Destinations} Destinations
  * @typedef { import('../app-api-service').default} AppApiService
+ */
+
+/**
+ * @typedef Point
+ * @type {Object}
+ * @property {string} id
+ * @property {number} basePrice
+ * @property {string} dateFrom
+ * @property {string} dateTo
+ * @property {string} destination
+ * @property {boolean} isFavorite
+ * @property {Array<string>} offers
+ * @property {string} type
  */
 
 /**

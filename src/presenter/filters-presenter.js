@@ -1,15 +1,15 @@
 //@ts-check
 
-import { FilterTypes, UpdateType } from '../constants.js';
-import Observable from '../framework/observable.js';
-import { remove, render, replace } from '../framework/render.js';
-import { filterСonditions } from '../utils/filters.js';
-import FilterView from '../view/filter-view.js';
+import { FilterTypes, UpdateType } from '../constants';
+import Observable from '../framework/observable';
+import { remove, render, replace } from '../framework/render';
+import { filterСonditions } from '../utils/filters';
+import FilterView from '../view/filter-view';
 
 /**
- * @typedef {import('../model/points-model.js').PointObject} PointObject
- * @typedef {import('../model/filter-model.js').default} FilterModel
- * @typedef {import('../model/points-model.js').default} PointsModel
+ * @typedef {import('../model/points-model').PointObject} PointObject
+ * @typedef {import('../model/filter-model').default} FilterModel
+ * @typedef {import('../model/points-model').default} PointsModel
 */
 
 /** Пресентер фильтров*/

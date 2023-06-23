@@ -29,7 +29,7 @@ const renderCities = (cities) => {
       result = `${firstCity} &mdash; ${secondCity}  &mdash; ${lastCity} `;
       break;
     default:
-      result = `${firstCity} &mdash;... &mdash; ${lastCity} `;
+      result = `${firstCity} &mdash;...&mdash; ${lastCity} `;
   }
   return result;
 };

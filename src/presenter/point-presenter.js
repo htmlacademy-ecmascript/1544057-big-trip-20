@@ -1,14 +1,14 @@
-import { UpdateType, UserAction } from '../constants.js';
-import { remove, render, replace } from '../framework/render.js';
-import { checkEscKeydownPress } from '../utils/points.js';
-import PointFormView from '../view/point/point-form-view.js';
-import PointInfoView from '../view/point/point-info-view.js';
+import { UpdateType, UserAction } from '../constants';
+import { remove, render, replace } from '../framework/render';
+import { checkEscKeydownPress } from '../utils/points';
+import PointFormView from '../view/point/point-form-view';
+import PointInfoView from '../view/point/point-info-view';
 
 /** Пересентер события */
-/**@typedef {import('./page-presenter.js').Point}  Point*/
-/**@typedef {import('../model/offers-model.js').Offer} Offer */
-/**@typedef {import('../model/destinations-model.js').default}  DestinationsModel*/
-/**@typedef {import('../model/offers-model.js').default}  OffersModel*/
+/**@typedef {import('./page-presenter').Point}  Point*/
+/**@typedef {import('../model/offers-model').Offer} Offer */
+/**@typedef {import('../model/destinations-model').default}  DestinationsModel*/
+/**@typedef {import('../model/offers-model').default}  OffersModel*/
 
 const Mode = {
   DEFAULT: 'DEFAULT',

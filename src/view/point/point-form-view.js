@@ -5,17 +5,16 @@ import flatpickr from 'flatpickr';
 import he from 'he';
 
 //@ts-check
-import { POINT_FORM_FORMAT } from '../../constants.js';
-import AbstractStatefulView
-  from '../../framework/view/abstract-stateful-view.js';
-import { humanizeDate } from '../../utils/points.js';
+import { POINT_FORM_FORMAT } from '../../constants';
+import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
+import { humanizeDate } from '../../utils/points';
 
 /**
- * @typedef {import('../../model/offers-model.js').Offer} Offer
- * @typedef {import('../../model/offers-model.js').OffersByType} OffersByType
- * @typedef {import('../../model/destinations-model.js').Destinations} Destinations
- * @typedef {import('../../model/destinations-model.js').Destination} Destination
- * @typedef { import('../../model/points-model.js').Point } Point
+ * @typedef {import('../../model/offers-model').Offer} Offer
+ * @typedef {import('../../model/offers-model').OffersByType} OffersByType
+ * @typedef {import('../../model/destinations-model').Destinations} Destinations
+ * @typedef {import('../../model/destinations-model').Destination} Destination
+ * @typedef { import('../../model/points-model').Point } Point
  */
 
 /**
@@ -44,6 +43,19 @@ const BLANK_POINT = {
   isFavorite: false,
   offers: null,
   type: null
+};
+
+const FieldClasses = {
+  DESTINATION: 'event__input  event__input--destination',
+  PRICE: 'event__input  event__input--price',
+  OFFER: 'event__offer-checkbox  visually-hidden',
+  TYPE: 'event__type'
+};
+
+const ButtonClassNames = {
+  RESET: 'event__reset-btn',
+  SAVE: 'event__save-btn  btn  btn--blue',
+  ROLLUP: 'event__rollup-btn'
 };
 
 /**
@@ -276,9 +288,9 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
 
 
 /**
-       * Класс представления формы изменения или добавления точки путешесвия
-       * @class PointFormView
-       */
+ * Класс представления формы изменения или добавления точки путешесвия
+ * @class PointFormView
+ */
 export default class PointFormView extends AbstractStatefulView {
   #destinations;
   #offersByTypes;
@@ -419,18 +431,13 @@ export default class PointFormView extends AbstractStatefulView {
       */
   #buttosClickHandler = (evt) => {
     evt.preventDefault();
-    switch (evt.target.className) {
-      case 'event__reset-btn':
-        this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state));
-        break;
-      case 'event__save-btn  btn  btn--blue':
-        this.#handleSubmitClick(PointFormView.parseStateToPoint(this._state));
-        break;
-      case 'event__rollup-btn':
-        this.#cancelSaveClickHandler();
-        break;
-      default:
-    }
+    const ButtonFunctions = {
+      [ButtonClassNames.RESET]: () => this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state)),
+      [ButtonClassNames.SAVE]: () => this.#handleSubmitClick(PointFormView.parseStateToPoint(this._state)),
+      [ButtonClassNames.ROLLUP]: () => this.#cancelSaveClickHandler()
+    };
+
+    ButtonFunctions[evt.target.className]();
   };
 
   /**
@@ -439,67 +446,44 @@ export default class PointFormView extends AbstractStatefulView {
       */
   //Валидирует сразу все input
   #inputsChangeHandler = (evt) => {
-    const fileldType = evt.target.className.split('--')[1] || evt.target.className.split(' ')[0];
+    const FieldFunctions = {
+      [FieldClasses.DESTINATION]: (target) => {
+        target.value = target.value.trim();
+        const destination = this.#destinationsByCities.get(target.value) || false;
+        if (destination) {
+          this.updateElement({ destination });
+          return;
+        }
+        target.value = ' ';
+        this._setState({ ...this._state, destination: false });
+      },
 
-    if (fileldType.includes('event__type')) {
+      [FieldClasses.PRICE]: (target) => {
+        const basePrice = Number(target.value);
+        if (basePrice) {
+          target.value = basePrice;
+          this._setState({ ...this._state, basePrice });
+          return;
+        }
+
+        this._setState({ ...this._state, basePrice: false });
+      },
+
+      [FieldClasses.OFFER]: ({ id }) => {
+        const findOffer = this._state.offers.get(id);
+        this._setState({ ...this._state, offers: this._state.offers.set(id, { ...findOffer, selected: !findOffer.selected }) });
+      }
+    };
+
+    const className = evt.target.className;
+
+    if (className.includes(FieldClasses.TYPE)) {
       return;
     }
-    /**
-   * Обновляет basePrice
-   * @param {? EventTarget} target
-      */
-    const updateBasePrice = (target) => {
 
+    FieldFunctions[className](evt.target);
 
-      const basePrice = Number(target.value);
-      if (basePrice) {
-        target.value = basePrice;
-        this._setState({ ...this._state, basePrice });
-        return;
-      }
-
-      this._setState({ ...this._state, basePrice: false });
-    };
-
-    /**
-   * Обновляет определенный offer
-   * @param {{ id: string }} target id
-      */
-    const updateOfferSelect = ({ id }) => {
-      const findOffer = this._state.offers.get(id);
-
-      this._setState({ ...this._state, offers: this._state.offers.set(id, { ...findOffer, selected: !findOffer.selected }) });
-
-    };
-
-    const updateDectination = (target) => {
-      target.value = target.value.trim();
-      const destination = this.#destinationsByCities.get(target.value) || false;
-      if (destination) {
-        this.updateElement({ destination });
-        return;
-      }
-      target.value = ' ';
-      this._setState({ ...this._state, destination: false });
-    };
-
-    evt.preventDefault();
-
-
-    switch (fileldType) {
-      case 'destination':
-        updateDectination(evt.target);
-        break;
-      case 'price':
-        updateBasePrice(evt.target);
-        break;
-      case 'event__offer-checkbox':
-        updateOfferSelect(evt.target);
-        break;
-      default:
-    }
-
-    this.#saveButton = this.element.querySelector('.event__save-btn');
+    this.#saveButton = this.element.querySelector(`.${ButtonClassNames.SAVE}`);
 
     this.#saveButton.disabled = this.#isSubmitDisabled();
   };
