@@ -415,11 +415,11 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**
  * Обработчик всех кнопок
- * @param {Event} event
+ * @param {Event} evt
       */
-  #buttosClickHandler = (event) => {
-    event.preventDefault();
-    switch (event.target.className) {
+  #buttosClickHandler = (evt) => {
+    evt.preventDefault();
+    switch (evt.target.className) {
       case 'event__reset-btn':
         this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state));
         break;
@@ -435,11 +435,11 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**
    * Обработчик и валидация инпутов
-   * @param {Event} event
+   * @param {Event} evt
       */
   //Валидирует сразу все input
-  #inputsChangeHandler = (event) => {
-    const fileldType = event.target.className.split('--')[1] || event.target.className.split(' ')[0];
+  #inputsChangeHandler = (evt) => {
+    const fileldType = evt.target.className.split('--')[1] || evt.target.className.split(' ')[0];
 
     if (fileldType.includes('event__type')) {
       return;
@@ -483,18 +483,18 @@ export default class PointFormView extends AbstractStatefulView {
       this._setState({ ...this._state, destination: false });
     };
 
-    event.preventDefault();
+    evt.preventDefault();
 
 
     switch (fileldType) {
       case 'destination':
-        updateDectination(event.target);
+        updateDectination(evt.target);
         break;
       case 'price':
-        updateBasePrice(event.target);
+        updateBasePrice(evt.target);
         break;
       case 'event__offer-checkbox':
-        updateOfferSelect(event.target);
+        updateOfferSelect(evt.target);
         break;
       default:
     }
@@ -504,9 +504,9 @@ export default class PointFormView extends AbstractStatefulView {
     this.#saveButton.disabled = this.#isSubmitDisabled();
   };
 
-  /**@param {Event} event*/
-  #typeChangeHandler = (event) => {
-    const type = event.target.value;
+  /**@param {Event} evt*/
+  #typeChangeHandler = (evt) => {
+    const type = evt.target.value;
     const offers = this.#offersByTypes.get(type);
     offers.forEach((/** @type {Offer & { selected: boolean }}} */ offer) => {
       offer.selected = false;

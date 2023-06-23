@@ -110,18 +110,18 @@ export default class PointInfoView extends AbstractView {
   }
 
   /**
- * @param {Event} event
+ * @param {Event} evt
  */
-  #editClickHandler = (event) => {
-    event.preventDefault();
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
     this.#handlerEditClick();
   };
 
   /**
- * @param {Event} event
+ * @param {Event} evt
  */
-  #favoriteClickHandler = (event) => {
-    event.preventDefault();
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
     this.#handleFavoriteClick();
   };
 }

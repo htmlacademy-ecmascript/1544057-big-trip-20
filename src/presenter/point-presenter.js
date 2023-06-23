@@ -161,8 +161,8 @@ export default class PointPresenter {
    * Обработчик нажатия ESCAPE
    * @param {KeyboardPoint} point
    */
-  #ecsKeydownHandler = (event) => {
-    checkEscKeydownPress(event, () => {
+  #ecsKeydownHandler = (evt) => {
+    checkEscKeydownPress(evt, () => {
       this.resetView();
     });
   };

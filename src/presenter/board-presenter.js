@@ -17,7 +17,7 @@ import {
 } from '../utils/points.js';
 import LoadingView from '../view/loading-view.js';
 import newPointButtonView from '../view/new-point-button-view';
-import PointsEmplyView from '../view/points-emply-view.js';
+import PointsEmplyView from '../view/points-empty-view.js';
 import PointsListView from '../view/points-list-view.js';
 import PointsSortView from '../view/points-sort-view.js';
 import FiltersPresenter from './filters-presenter.js';

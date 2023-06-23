@@ -66,11 +66,11 @@ export default class PointsSortView extends AbstractView {
  * @param {Event} point - Событие клика.
  * @private
  */
-  #sortTypeChangeHandler = (event) => {
-    if (event.target.tagName !== 'INPUT') {
+  #sortTypeChangeHandler = (evt) => {
+    if (evt.target.tagName !== 'INPUT') {
       return;
     }
 
-    this.#handleSortTypeChange(event.target.value);
+    this.#handleSortTypeChange(evt.target.value);
   };
 }

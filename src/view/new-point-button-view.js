@@ -55,10 +55,10 @@ export default class NewPointButtonView extends AbstractView {
 
   /**
    * Обработчик клика по кнопке.
-   * @param {Event} event - Объект события
+   * @param {Event} evt - Объект события
    */
-  #clickHandler = (event) => {
-    event.preventDefault();
+  #clickHandler = (evt) => {
+    evt.preventDefault();
     this.#handleClick();
   };
 }

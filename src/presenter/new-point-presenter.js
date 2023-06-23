@@ -78,8 +78,8 @@ export default class NewPointPresenter {
     this.destroy();
   };
 
-  #escKeyDownHandler = (event) => {
-    checkEscKeydownPress(event, () => {
+  #escKeyDownHandler = (evt) => {
+    checkEscKeydownPress(evt, () => {
       this.destroy();
     });
   };

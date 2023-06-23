@@ -13,7 +13,7 @@ const createPointsEmplyTemplate = (selectFilter) => `
   ${Texts[selectFilter]}
 </p>`;
 
-export default class PointsEmplyView extends AbstractView {
+export default class PointsEmptyView extends AbstractView {
   #selectFilter = null;
 
   constructor({ selectFilter }) {
