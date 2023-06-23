@@ -57,7 +57,6 @@ export default class AppApiService extends ApiService {
 
     const parsedResponse = await ApiService.parseResponse(response);
     return parsedResponse;
-
   }
 
   /**

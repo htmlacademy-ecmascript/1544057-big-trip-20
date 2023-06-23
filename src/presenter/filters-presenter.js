@@ -15,6 +15,7 @@ import FilterView from '../view/filter-view.js';
 /** Пресентер фильтров*/
 export default class FiltersPresenter extends Observable {
   #filtersContainer;
+
   #filterModel;
   #pointsModel;
 
@@ -24,12 +25,13 @@ export default class FiltersPresenter extends Observable {
   constructor({ pointsModel, filtersContainer, filterModel }) {
     super();
     this.#filtersContainer = filtersContainer;
+
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
 
-    this.#pointsModel.addObserver(this.#handleModelPoint);
-    // this.#filterModel.addObserver(this.#handleModelPoint);
+    this.#pointsModel.addObserver(this.#handleModelPointChange);
+    this.#filterModel.addObserver(this.#handleModelPointChange);
   }
 
   get filters() {
@@ -60,7 +62,7 @@ export default class FiltersPresenter extends Observable {
     remove(prevFilterComponent);
   }
 
-  #handleModelPoint = () => {
+  #handleModelPointChange = () => {
     this.init();
   };
 

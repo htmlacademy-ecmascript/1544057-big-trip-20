@@ -284,8 +284,8 @@ export default class PointFormView extends AbstractStatefulView {
   #offersByTypes;
   #destinationsByCities;
 
-  #handlerCancelClick;
-  #handlerSubmitClick;
+  #handleCancelClick;
+  #handleSubmitClick;
   #handleDeleteClick;
 
   #dateToPicker;
@@ -304,8 +304,8 @@ export default class PointFormView extends AbstractStatefulView {
 
     this._setState(PointFormView.parsePointToState(point, this.#offersByTypes, this.#destinations));
 
-    this.#handlerCancelClick = onCancelClick;
-    this.#handlerSubmitClick = onSubmitClick;
+    this.#handleCancelClick = onCancelClick;
+    this.#handleSubmitClick = onSubmitClick;
     this.#handleDeleteClick = onDeleteClick;
 
 
@@ -410,7 +410,7 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**Обратывает отмену сохранения*/
   #cancelSaveClickHandler() {
-    this.#handlerCancelClick();
+    this.#handleCancelClick();
   }
 
   /**
@@ -424,7 +424,7 @@ export default class PointFormView extends AbstractStatefulView {
         this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state));
         break;
       case 'event__save-btn  btn  btn--blue':
-        this.#handlerSubmitClick(PointFormView.parseStateToPoint(this._state));
+        this.#handleSubmitClick(PointFormView.parseStateToPoint(this._state));
         break;
       case 'event__rollup-btn':
         this.#cancelSaveClickHandler();

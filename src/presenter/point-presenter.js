@@ -17,14 +17,18 @@ const Mode = {
 
 export default class PointPresenter {
   #pointsListContainer;
+
   #offersModel;
   #destinationsModel;
   /**@type{PointInfoView}*/
+
   #pointInfoComponent;
   /**@type{PointFormView}*/
   #pointFormComponent;
+
   #handleDataChange;
   #handleModeChange;
+
   /**@type{Point} */
   #point;
   #mode = Mode.DEFAULT;
@@ -34,8 +38,10 @@ export default class PointPresenter {
    */
   constructor({ pointsListContainer, destinationsModel, offersModel, onDataChanged, onModeChange }) {
     this.#pointsListContainer = pointsListContainer;
+
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+
     this.#handleDataChange = onDataChanged;
     this.#handleModeChange = onModeChange;
   }
@@ -158,16 +164,6 @@ export default class PointPresenter {
   };
 
   /**
-   * Обработчик нажатия ESCAPE
-   * @param {KeyboardPoint} point
-   */
-  #ecsKeydownHandler = (evt) => {
-    checkEscKeydownPress(evt, () => {
-      this.resetView();
-    });
-  };
-
-  /**
    * Обработчик клика по кнопке добавить в избранное
    */
   #handleFavoriteClick = () => {
@@ -179,7 +175,6 @@ export default class PointPresenter {
   };
 
   /**
-   * Обработчик сохранения данных формы
    * @param {Point} point
    */
   #handleFormSubmit = (point) => {
@@ -196,4 +191,13 @@ export default class PointPresenter {
       { ...point });
   };
 
+  /**
+  * Обработчик нажатия ESCAPE
+  * @param {KeyboardPoint} point
+  */
+  #ecsKeydownHandler = (evt) => {
+    checkEscKeydownPress(evt, () => {
+      this.resetView();
+    });
+  };
 }

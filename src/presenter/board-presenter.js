@@ -88,19 +88,16 @@ export default class BoardPresenter {
       onDataChange: this.#handleViewAction,
       onDestroy: this.#handleNewPointFormClose
     });
-
     this.#tripInfoPresenter = new TripInfoPresenter({
       container: this.#headerContainer,
       destinationsModel: destinationsModel,
       offersModel,
     });
-
     this.#filtersPresenter = new FiltersPresenter({
       pointsModel,
       filterModel,
       filtersContainer: this.#filterContiner
     });
-
     this.#newPointButtonComponent = new newPointButtonView({
       onClick: this.#handleNewPointButtonClick
     });

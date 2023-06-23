@@ -4,7 +4,7 @@ import AbstractView from '../../framework/view/abstract-view';
 import { calculateDuration, humanizeDate } from '../../utils/points';
 
 /**
- * @typedef {import('../../presenter/page-presenter').Point} Point
+ * @typedef {import('../../presenter/board-presenter').Point} Point
  * @typedef {import('../../model/offers-model').OffersByType} OffersByType
  * @typedef {import('../../model/destinations-model').Destinations} Destinations
  * /
@@ -70,7 +70,8 @@ export default class PointInfoView extends AbstractView {
   #point;
   #destinations;
   #offersByType;
-  #handlerEditClick;
+
+  #handleEditClick;
   #handleFavoriteClick;
 
   /**
@@ -81,7 +82,7 @@ export default class PointInfoView extends AbstractView {
     this.#point = point;
     this.#destinations = destinations;
     this.#offersByType = offersByType;
-    this.#handlerEditClick = onEditButtonClick;
+    this.#handleEditClick = onEditButtonClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
@@ -114,7 +115,7 @@ export default class PointInfoView extends AbstractView {
  */
   #editClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handlerEditClick();
+    this.#handleEditClick();
   };
 
   /**
