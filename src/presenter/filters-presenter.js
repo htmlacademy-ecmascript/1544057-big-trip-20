@@ -3,7 +3,7 @@
 import { FilterTypes, UpdateType } from '../constants.js';
 import Observable from '../framework/observable.js';
 import { remove, render, replace } from '../framework/render.js';
-import { filters } from '../utils/filters.js';
+import { filterСonditions } from '../utils/filters.js';
 import FilterView from '../view/filter-view.js';
 
 /**
@@ -37,10 +37,30 @@ export default class FiltersPresenter extends Observable {
   get filters() {
     const points = this.#pointsModel.points;
 
-    return Object.values(FilterTypes).map((type) => {
-      const filteredPoints = filters[type](points);
-      return { type, disabled: filteredPoints.length <= 0 };
+    const filtersConfig = {
+      [FilterTypes.EVERYTHING]: true,
+      [FilterTypes.FUTURE]: true,
+      [FilterTypes.PRESENT]: true,
+      [FilterTypes.PAST]: true
+    };
+
+    points.forEach((point) => {
+      Object.values(FilterTypes).forEach((filterName) => {
+        if (filterСonditions[filterName](point)) {
+          filtersConfig[filterName] = false;
+        }
+      });
     });
+
+    const filters = [];
+
+    for (const filterName in filtersConfig) {
+      const disabled = filtersConfig[filterName];
+
+      filters.push({ filterName, disabled });
+    }
+
+    return filters;
   }
 
   /**Метод для отрисовки фильтров */

@@ -47,14 +47,6 @@ const sortPointsByDate = (points) => points.sort((a, b) => dayjs(a.dateFrom).dif
 const sortPointsByType = (points) => points.sort((a, b) => a.type.localeCompare(b.type));
 
 /**
- * Сортирует массив объектов point по длине массива offers.
- *
- * @param {Point[]} points - Массив объектов point для сортировки.
- * @returns {Point[]} - Отсортированный массив объектов point.
- */
-const sortPointsByOffersLength = (points) => points.sort((a, b) => b.offers.length - a.offers.length);
-
-/**
  * Сортирует массив объектов point по цене (basePrice).
  *
  * @param {Point[]} points - Массив объектов point для сортировки.
@@ -81,7 +73,6 @@ export {
   humanizeDate,
   sortPointsByDate,
   sortPointsByDuration,
-  sortPointsByOffersLength,
   sortPointsByPrice,
   sortPointsByType,
 };

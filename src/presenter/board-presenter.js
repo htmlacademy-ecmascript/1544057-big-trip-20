@@ -12,7 +12,6 @@ import { filters } from '../utils/filters.js';
 import {
   sortPointsByDate,
   sortPointsByDuration,
-  sortPointsByOffersLength,
   sortPointsByPrice,
 } from '../utils/points.js';
 import LoadingView from '../view/loading-view.js';
@@ -124,8 +123,6 @@ export default class BoardPresenter {
       return;
     }
 
-    this.#filtersPresenter.init();
-
     if (this.points.length > 0) {
       this.#tripInfoPresenter.init(this.points);
       this.#renderPointsBoard();
@@ -157,8 +154,6 @@ export default class BoardPresenter {
         return sortPointsByDuration(points);
       case SortTypes.PRICE:
         return sortPointsByPrice(points);
-      case SortTypes.OFFERS:
-        return sortPointsByOffersLength(points);
       default:
         return points;
     }

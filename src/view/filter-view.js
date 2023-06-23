@@ -19,13 +19,13 @@ const createFilter = ({ filterName, checked = false, disabled = false }) => `
  * @returns {HTMLElement}
  */
 const createFilters = (filters, currentFilterType) => {
-  const filtersTemplate = filters.map((filter) => {
+  const filtersTemplate = filters.map(({ filterName, disabled }) => {
 
-    if (filter.type === currentFilterType) {
-      return createFilter({ filterName: filter.type, checked: true, disabled: filter.disabled });
+    if (filterName === currentFilterType) {
+      return createFilter({ filterName, checked: true, disabled });
     }
 
-    return createFilter({ filterName: filter.type, disabled: filter.disabled });
+    return createFilter({ filterName, disabled });
   });
 
   return filtersTemplate.join('\n');
