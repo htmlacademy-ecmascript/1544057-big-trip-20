@@ -11,9 +11,9 @@ export default class NewPointPresenter {
 
   #newPointComponent;
 
-  constructor({ pointsListContainer, onDataChange, onDestroy }) {
+  constructor({ pointsListContainer, handleDataChange, onDestroy }) {
     this.#pointsListContainer = pointsListContainer;
-    this.#handleDataChange = onDataChange;
+    this.#handleDataChange = handleDataChange;
     this.#handleDestroy = onDestroy;
   }
 

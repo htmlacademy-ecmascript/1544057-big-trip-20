@@ -53,8 +53,24 @@ const ShakeTimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
+const FieldClasses = {
+  DESTINATION: 'event__input  event__input--destination',
+  PRICE: 'event__input  event__input--price',
+  OFFER: 'event__offer-checkbox  visually-hidden',
+  TYPE: 'event__type',
+  TIME: 'event__input event__input--time active flatpickr-input'
+};
+
+const ButtonClassNames = {
+  RESET: 'event__reset-btn',
+  SAVE: 'event__save-btn  btn  btn--blue',
+  ROLLUP: 'event__rollup-btn'
+};
+
 export {
   AUTHORIZATION,
+  ButtonClassNames,
+  FieldClasses,
   FilterTypes,
   MAX_POINTS,
   MAX_SELECT_OFFERS,

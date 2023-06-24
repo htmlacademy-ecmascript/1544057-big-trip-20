@@ -9,11 +9,7 @@ import {
 import { remove, render, RenderPosition } from '../framework/render';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
 import { filters } from '../utils/filters';
-import {
-  sortPointsByDate,
-  sortPointsByDuration,
-  sortPointsByPrice,
-} from '../utils/points';
+import { SortFunctions } from '../utils/points';
 import LoadingView from '../view/loading-view';
 import newPointButtonView from '../view/new-point-button-view';
 import PointsEmplyView from '../view/points-empty-view';
@@ -84,7 +80,7 @@ export default class BoardPresenter {
 
     this.#newPointPresenter = new NewPointPresenter({
       pointsListContainer: this.#pointsListComponent.element,
-      onDataChange: this.#handleViewAction,
+      handleDataChange: this.#handleViewAction,
       onDestroy: this.#handleNewPointFormClose
     });
     this.#tripInfoPresenter = new TripInfoPresenter({
@@ -110,11 +106,11 @@ export default class BoardPresenter {
     const points = this.#pointsModel.points;
     const filteredPoints = filters[this.#filterType](points);
 
-
     return this.#getSortPoints(filteredPoints);
   }
 
   init() {
+
     render(this.#pointsListComponent, this.#pointsConstainer, RenderPosition.BEFOREEND);
     render(this.#newPointButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
 
@@ -123,9 +119,11 @@ export default class BoardPresenter {
       return;
     }
 
-    if (this.points.length > 0) {
-      this.#tripInfoPresenter.init(this.points);
-      this.#renderPointsBoard();
+    const points = this.points;
+
+    if (points.length > 0) {
+      this.#tripInfoPresenter.init(points);
+      this.#renderPointsBoard(points);
 
       return;
     }
@@ -147,16 +145,7 @@ export default class BoardPresenter {
    * @returns {Points} Отсортированные точки маршрута
    */
   #getSortPoints(points) {
-    switch (this.#currentSortType) {
-      case SortTypes.DEFAULT:
-        return sortPointsByDate(points);
-      case SortTypes.TIME:
-        return sortPointsByDuration(points);
-      case SortTypes.PRICE:
-        return sortPointsByPrice(points);
-      default:
-        return points;
-    }
+    return SortFunctions[this.#currentSortType](points);
   }
 
   #renderLoading() {
@@ -176,7 +165,7 @@ export default class BoardPresenter {
   #renderSorts() {
     this.#sortsComponent = new PointsSortView({
       currentSortType: this.#currentSortType,
-      onSortTypeChange: this.#handleSortTypeChange
+      handleSortTypeChange: this.#handleSortTypeChange
     });
 
     render(this.#sortsComponent, this.#pointsConstainer, RenderPosition.AFTERBEGIN);
@@ -185,16 +174,16 @@ export default class BoardPresenter {
   /**
    * Рендерит компоненты для блока событий
    */
-  #renderPointsBoard() {
+  #renderPointsBoard(points) {
     this.#renderSorts();
 
-    this.points.forEach((point) => {
+    points.forEach((point) => {
       const pointPresenter = new PointPresenter({
         pointsListContainer: this.#pointsListComponent.element,
         destinationsModel: this.#destinationsModel,
         offersModel: this.#offersModel,
-        onDataChanged: this.#handleViewAction,
-        onModeChange: this.#handleModeChange
+        handleDataChanged: this.#handleViewAction,
+        handleModeChange: this.#handleModeChange
       });
 
       pointPresenter.init(point);

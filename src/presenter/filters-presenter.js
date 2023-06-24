@@ -70,7 +70,7 @@ export default class FiltersPresenter extends Observable {
     this.#filterComponent = new FilterView({
       filters: this.filters,
       currentFilterType: this.#filterModel.filter,
-      onFilterTypeChange: this.#handleFilterTypeChange
+      handleFilterTypeChange: this.#handleFilterTypeChange
     });
 
     if (!prevFilterComponent) {

@@ -5,7 +5,11 @@ import flatpickr from 'flatpickr';
 import he from 'he';
 
 //@ts-check
-import { POINT_FORM_FORMAT } from '../../constants';
+import {
+  ButtonClassNames,
+  FieldClasses,
+  POINT_FORM_FORMAT,
+} from '../../constants';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
 import { humanizeDate } from '../../utils/points';
 
@@ -43,19 +47,6 @@ const BLANK_POINT = {
   isFavorite: false,
   offers: null,
   type: null
-};
-
-const FieldClasses = {
-  DESTINATION: 'event__input  event__input--destination',
-  PRICE: 'event__input  event__input--price',
-  OFFER: 'event__offer-checkbox  visually-hidden',
-  TYPE: 'event__type'
-};
-
-const ButtonClassNames = {
-  RESET: 'event__reset-btn',
-  SAVE: 'event__save-btn  btn  btn--blue',
-  ROLLUP: 'event__rollup-btn'
 };
 
 /**
@@ -472,7 +463,9 @@ export default class PointFormView extends AbstractStatefulView {
       [FieldClasses.OFFER]: ({ id }) => {
         const findOffer = this._state.offers.get(id);
         this._setState({ ...this._state, offers: this._state.offers.set(id, { ...findOffer, selected: !findOffer.selected }) });
-      }
+      },
+
+      [FieldClasses.TIME]: () => false
     };
 
     const className = evt.target.className;
@@ -483,7 +476,7 @@ export default class PointFormView extends AbstractStatefulView {
 
     FieldFunctions[className](evt.target);
 
-    this.#saveButton = this.element.querySelector(`.${ButtonClassNames.SAVE}`);
+    this.#saveButton = this.element.querySelector('.event__save-btn');
 
     this.#saveButton.disabled = this.#isSubmitDisabled();
   };

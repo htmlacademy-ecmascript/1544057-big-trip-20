@@ -34,16 +34,16 @@ export default class PointPresenter {
   #mode = Mode.DEFAULT;
 
   /**
-   * @param {{pointsListContainer: HTMLElement, destinationsModel: DestinationsModel, offersModel: OffersModel, onDataChanged: function, onModeChange: function}} params
+   * @param {{pointsListContainer: HTMLElement, destinationsModel: DestinationsModel, offersModel: OffersModel, handleDataChanged: function, handleModeChange: function}} params
    */
-  constructor({ pointsListContainer, destinationsModel, offersModel, onDataChanged, onModeChange }) {
+  constructor({ pointsListContainer, destinationsModel, offersModel, handleDataChanged, handleModeChange }) {
     this.#pointsListContainer = pointsListContainer;
 
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
 
-    this.#handleDataChange = onDataChanged;
-    this.#handleModeChange = onModeChange;
+    this.#handleDataChange = handleDataChanged;
+    this.#handleModeChange = handleModeChange;
   }
 
   /**
