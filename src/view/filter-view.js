@@ -19,13 +19,13 @@ const createFilter = ({ filterName, checked = false, disabled = false }) => `
  * @returns {HTMLElement}
  */
 const createFilters = (filters, currentFilterType) => {
-  const filtersTemplate = filters.map((filter) => {
+  const filtersTemplate = filters.map(({ filterName, disabled }) => {
 
-    if (filter.type === currentFilterType) {
-      return createFilter({ filterName: filter.type, checked: true, disabled: filter.disabled });
+    if (filterName === currentFilterType) {
+      return createFilter({ filterName, checked: true, disabled });
     }
 
-    return createFilter({ filterName: filter.type, disabled: filter.disabled });
+    return createFilter({ filterName, disabled });
   });
 
   return filtersTemplate.join('\n');
@@ -43,11 +43,11 @@ export default class FilterView extends AbstractView {
   #handleFilterTypeChange;
   #currentFilterType;
 
-  constructor({ filters, currentFilterType, onFilterTypeChange }) {
+  constructor({ filters, currentFilterType, handleFilterTypeChange }) {
     super();
     this.#filters = filters;
     this.#currentFilterType = currentFilterType;
-    this.#handleFilterTypeChange = onFilterTypeChange;
+    this.#handleFilterTypeChange = handleFilterTypeChange;
 
     this.element.addEventListener('change', this.#filterTypeChangeHandler);
   }
@@ -56,8 +56,8 @@ export default class FilterView extends AbstractView {
     return createPointsFilterTemplate(this.#filters, this.#currentFilterType);
   }
 
-  #filterTypeChangeHandler = (event) => {
-    event.preventDefault();
-    this.#handleFilterTypeChange(event.target.value);
+  #filterTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFilterTypeChange(evt.target.value);
   };
 }

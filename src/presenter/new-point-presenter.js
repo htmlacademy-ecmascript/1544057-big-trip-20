@@ -1,7 +1,7 @@
-import { UpdateType, UserAction } from '../constants.js';
-import { remove, render, RenderPosition } from '../framework/render.js';
-import { checkEscKeydownPress } from '../utils/points.js';
-import PointFormView from '../view/point/point-form-view.js';
+import { UpdateType, UserAction } from '../constants';
+import { remove, render, RenderPosition } from '../framework/render';
+import { checkEscKeydownPress } from '../utils/points';
+import PointFormView from '../view/point/point-form-view';
 
 export default class NewPointPresenter {
   #pointsListContainer;
@@ -11,9 +11,9 @@ export default class NewPointPresenter {
 
   #newPointComponent;
 
-  constructor({ pointsListContainer, onDataChange, onDestroy }) {
+  constructor({ pointsListContainer, handleDataChange, onDestroy }) {
     this.#pointsListContainer = pointsListContainer;
-    this.#handleDataChange = onDataChange;
+    this.#handleDataChange = handleDataChange;
     this.#handleDestroy = onDestroy;
   }
 
@@ -25,8 +25,8 @@ export default class NewPointPresenter {
     this.#newPointComponent = new PointFormView({
       destinations: destinationsModel.destinations,
       offersByTypes: offersModel.offers,
-      onSubmitClick: this.#handleFormSubmit,
-      onDeleteClick: this.#handleCanselClick
+      handleSubmitClick: this.#handleFormSubmit,
+      handleDeleteClick: this.#handleCanselClick
     });
 
     render(this.#newPointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
@@ -78,8 +78,8 @@ export default class NewPointPresenter {
     this.destroy();
   };
 
-  #escKeyDownHandler = (event) => {
-    checkEscKeydownPress(event, () => {
+  #escKeyDownHandler = (evt) => {
+    checkEscKeydownPress(evt, () => {
       this.destroy();
     });
   };
