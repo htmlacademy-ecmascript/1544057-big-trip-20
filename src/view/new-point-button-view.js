@@ -4,7 +4,7 @@
  * @property {function} onClick - Обработчик клика по кнопке
  */
 
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractView from '../framework/view/abstract-view';
 
 /**
  * Создает HTML-шаблон кнопки "New event".
@@ -55,10 +55,10 @@ export default class NewPointButtonView extends AbstractView {
 
   /**
    * Обработчик клика по кнопке.
-   * @param {Event} event - Объект события
+   * @param {Event} evt - Объект события
    */
-  #clickHandler = (event) => {
-    event.preventDefault();
+  #clickHandler = (evt) => {
+    evt.preventDefault();
     this.#handleClick();
   };
 }

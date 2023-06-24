@@ -5,17 +5,20 @@ import flatpickr from 'flatpickr';
 import he from 'he';
 
 //@ts-check
-import { POINT_FORM_FORMAT } from '../../constants.js';
-import AbstractStatefulView
-  from '../../framework/view/abstract-stateful-view.js';
-import { humanizeDate } from '../../utils/points.js';
+import {
+  ButtonClassNames,
+  FieldClasses,
+  POINT_FORM_FORMAT,
+} from '../../constants';
+import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
+import { humanizeDate } from '../../utils/points';
 
 /**
- * @typedef {import('../../model/offers-model.js').Offer} Offer
- * @typedef {import('../../model/offers-model.js').OffersByType} OffersByType
- * @typedef {import('../../model/destinations-model.js').Destinations} Destinations
- * @typedef {import('../../model/destinations-model.js').Destination} Destination
- * @typedef { import('../../model/points-model.js').Point } Point
+ * @typedef {import('../../model/offers-model').Offer} Offer
+ * @typedef {import('../../model/offers-model').OffersByType} OffersByType
+ * @typedef {import('../../model/destinations-model').Destinations} Destinations
+ * @typedef {import('../../model/destinations-model').Destination} Destination
+ * @typedef { import('../../model/points-model').Point } Point
  */
 
 /**
@@ -276,16 +279,16 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
 
 
 /**
-       * Класс представления формы изменения или добавления точки путешесвия
-       * @class PointFormView
-       */
+ * Класс представления формы изменения или добавления точки путешесвия
+ * @class PointFormView
+ */
 export default class PointFormView extends AbstractStatefulView {
   #destinations;
   #offersByTypes;
   #destinationsByCities;
 
-  #handlerCancelClick;
-  #handlerSubmitClick;
+  #handleCancelClick;
+  #handleSubmitClick;
   #handleDeleteClick;
 
   #dateToPicker;
@@ -295,18 +298,18 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**
    * Конструктор компонента формы события
-   * @param {{ point: Point | BLANK_POINT, destinations: Destinations, offersByTypes: OffersByType, onDeleteClick: function, onCancelClick: function, onSubmitClick: function}} params
+   * @param {{ point: Point | BLANK_POINT, destinations: Destinations, offersByTypes: OffersByType, handleDeleteClick: function, handleCancelClick: function, handleSubmitClick: function}} params
       */
-  constructor({ point = BLANK_POINT, destinations, offersByTypes, onCancelClick, onDeleteClick, onSubmitClick }) {
+  constructor({ point = BLANK_POINT, destinations, offersByTypes, handleCancelClick, handleDeleteClick, handleSubmitClick }) {
     super();
     this.#destinations = destinations;
     this.#offersByTypes = offersByTypes;
 
     this._setState(PointFormView.parsePointToState(point, this.#offersByTypes, this.#destinations));
 
-    this.#handlerCancelClick = onCancelClick;
-    this.#handlerSubmitClick = onSubmitClick;
-    this.#handleDeleteClick = onDeleteClick;
+    this.#handleCancelClick = handleCancelClick;
+    this.#handleSubmitClick = handleSubmitClick;
+    this.#handleDeleteClick = handleDeleteClick;
 
 
     this.#destinationsByCities = new Map();
@@ -410,103 +413,77 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**Обратывает отмену сохранения*/
   #cancelSaveClickHandler() {
-    this.#handlerCancelClick();
+    this.#handleCancelClick();
   }
 
   /**
  * Обработчик всех кнопок
- * @param {Event} event
+ * @param {Event} evt
       */
-  #buttosClickHandler = (event) => {
-    event.preventDefault();
-    switch (event.target.className) {
-      case 'event__reset-btn':
-        this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state));
-        break;
-      case 'event__save-btn  btn  btn--blue':
-        this.#handlerSubmitClick(PointFormView.parseStateToPoint(this._state));
-        break;
-      case 'event__rollup-btn':
-        this.#cancelSaveClickHandler();
-        break;
-      default:
-    }
+  #buttosClickHandler = (evt) => {
+    evt.preventDefault();
+    const ButtonFunctions = {
+      [ButtonClassNames.RESET]: () => this.#handleDeleteClick(PointFormView.parseStateToPoint(this._state)),
+      [ButtonClassNames.SAVE]: () => this.#handleSubmitClick(PointFormView.parseStateToPoint(this._state)),
+      [ButtonClassNames.ROLLUP]: () => this.#cancelSaveClickHandler()
+    };
+
+    ButtonFunctions[evt.target.className]();
   };
 
   /**
    * Обработчик и валидация инпутов
-   * @param {Event} event
+   * @param {Event} evt
       */
   //Валидирует сразу все input
-  #inputsChangeHandler = (event) => {
-    const fileldType = event.target.className.split('--')[1] || event.target.className.split(' ')[0];
+  #inputsChangeHandler = (evt) => {
+    const FieldFunctions = {
+      [FieldClasses.DESTINATION]: (target) => {
+        target.value = target.value.trim();
+        const destination = this.#destinationsByCities.get(target.value) || false;
+        if (destination) {
+          this.updateElement({ destination });
+          return;
+        }
+        target.value = ' ';
+        this._setState({ ...this._state, destination: false });
+      },
 
-    if (fileldType.includes('event__type')) {
+      [FieldClasses.PRICE]: (target) => {
+        const basePrice = Number(target.value);
+        if (basePrice) {
+          target.value = basePrice;
+          this._setState({ ...this._state, basePrice });
+          return;
+        }
+
+        this._setState({ ...this._state, basePrice: false });
+      },
+
+      [FieldClasses.OFFER]: ({ id }) => {
+        const findOffer = this._state.offers.get(id);
+        this._setState({ ...this._state, offers: this._state.offers.set(id, { ...findOffer, selected: !findOffer.selected }) });
+      },
+
+      [FieldClasses.TIME]: () => false
+    };
+
+    const className = evt.target.className;
+
+    if (className.includes(FieldClasses.TYPE)) {
       return;
     }
-    /**
-   * Обновляет basePrice
-   * @param {? EventTarget} target
-      */
-    const updateBasePrice = (target) => {
 
-
-      const basePrice = Number(target.value);
-      if (basePrice) {
-        target.value = basePrice;
-        this._setState({ ...this._state, basePrice });
-        return;
-      }
-
-      this._setState({ ...this._state, basePrice: false });
-    };
-
-    /**
-   * Обновляет определенный offer
-   * @param {{ id: string }} target id
-      */
-    const updateOfferSelect = ({ id }) => {
-      const findOffer = this._state.offers.get(id);
-
-      this._setState({ ...this._state, offers: this._state.offers.set(id, { ...findOffer, selected: !findOffer.selected }) });
-
-    };
-
-    const updateDectination = (target) => {
-      target.value = target.value.trim();
-      const destination = this.#destinationsByCities.get(target.value) || false;
-      if (destination) {
-        this.updateElement({ destination });
-        return;
-      }
-      target.value = ' ';
-      this._setState({ ...this._state, destination: false });
-    };
-
-    event.preventDefault();
-
-
-    switch (fileldType) {
-      case 'destination':
-        updateDectination(event.target);
-        break;
-      case 'price':
-        updateBasePrice(event.target);
-        break;
-      case 'event__offer-checkbox':
-        updateOfferSelect(event.target);
-        break;
-      default:
-    }
+    FieldFunctions[className](evt.target);
 
     this.#saveButton = this.element.querySelector('.event__save-btn');
 
     this.#saveButton.disabled = this.#isSubmitDisabled();
   };
 
-  /**@param {Event} event*/
-  #typeChangeHandler = (event) => {
-    const type = event.target.value;
+  /**@param {Event} evt*/
+  #typeChangeHandler = (evt) => {
+    const type = evt.target.value;
     const offers = this.#offersByTypes.get(type);
     offers.forEach((/** @type {Offer & { selected: boolean }}} */ offer) => {
       offer.selected = false;

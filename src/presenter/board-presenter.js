@@ -5,33 +5,28 @@ import {
   SortTypes,
   UpdateType,
   UserAction,
-} from '../constants.js';
-import { remove, render, RenderPosition } from '../framework/render.js';
-import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import { filters } from '../utils/filters.js';
-import {
-  sortPointsByDate,
-  sortPointsByDuration,
-  sortPointsByOffersLength,
-  sortPointsByPrice,
-} from '../utils/points.js';
-import LoadingView from '../view/loading-view.js';
+} from '../constants';
+import { remove, render, RenderPosition } from '../framework/render';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+import { filters } from '../utils/filters';
+import { SortFunctions } from '../utils/points';
+import LoadingView from '../view/loading-view';
 import newPointButtonView from '../view/new-point-button-view';
-import PointsEmplyView from '../view/points-emply-view.js';
-import PointsListView from '../view/points-list-view.js';
-import PointsSortView from '../view/points-sort-view.js';
-import FiltersPresenter from './filters-presenter.js';
-import NewPointPresenter from './new-point-presenter.js';
-import PointPresenter from './point-presenter.js';
-import TripInfoPresenter from './trip-info-presenter.js';
+import PointsEmplyView from '../view/points-empty-view';
+import PointsListView from '../view/points-list-view';
+import PointsSortView from '../view/points-sort-view';
+import FiltersPresenter from './filters-presenter';
+import NewPointPresenter from './new-point-presenter';
+import PointPresenter from './point-presenter';
+import TripInfoPresenter from './trip-info-presenter';
 
-/**@typedef {import('../model/points-model.js').Point} Point */
-/**@typedef {import('../model/points-model.js').Points}  Points*/
-/**@typedef {import('../model/offers-model.js').default} OffersModel */
-/**@typedef {import('../model/destinations-model.js').default} DestinationsModel */
-/**@typedef {import('../model/points-model.js').default} DestinationsModel */
-/**@typedef {import('../model/points-model.js').default} PointsModel */
-/**@typedef {import('../model/filter-model.js').default} FilterModel */
+/**@typedef {import('../model/points-model').Point} Point */
+/**@typedef {import('../model/points-model').Points}  Points*/
+/**@typedef {import('../model/offers-model').default} OffersModel */
+/**@typedef {import('../model/destinations-model').default} DestinationsModel */
+/**@typedef {import('../model/points-model').default} DestinationsModel */
+/**@typedef {import('../model/points-model').default} PointsModel */
+/**@typedef {import('../model/filter-model').default} FilterModel */
 
 /**
  * Презентер страницы.
@@ -85,22 +80,19 @@ export default class BoardPresenter {
 
     this.#newPointPresenter = new NewPointPresenter({
       pointsListContainer: this.#pointsListComponent.element,
-      onDataChange: this.#handleViewAction,
+      handleDataChange: this.#handleViewAction,
       onDestroy: this.#handleNewPointFormClose
     });
-
     this.#tripInfoPresenter = new TripInfoPresenter({
       container: this.#headerContainer,
       destinationsModel: destinationsModel,
       offersModel,
     });
-
     this.#filtersPresenter = new FiltersPresenter({
       pointsModel,
       filterModel,
       filtersContainer: this.#filterContiner
     });
-
     this.#newPointButtonComponent = new newPointButtonView({
       onClick: this.#handleNewPointButtonClick
     });
@@ -114,11 +106,11 @@ export default class BoardPresenter {
     const points = this.#pointsModel.points;
     const filteredPoints = filters[this.#filterType](points);
 
-
     return this.#getSortPoints(filteredPoints);
   }
 
   init() {
+
     render(this.#pointsListComponent, this.#pointsConstainer, RenderPosition.BEFOREEND);
     render(this.#newPointButtonComponent, this.#headerContainer, RenderPosition.BEFOREEND);
 
@@ -127,11 +119,11 @@ export default class BoardPresenter {
       return;
     }
 
-    this.#filtersPresenter.init();
+    const points = this.points;
 
-    if (this.points.length > 0) {
-      this.#tripInfoPresenter.init(this.points);
-      this.#renderPointsBoard();
+    if (points.length > 0) {
+      this.#tripInfoPresenter.init(points);
+      this.#renderPointsBoard(points);
 
       return;
     }
@@ -153,18 +145,7 @@ export default class BoardPresenter {
    * @returns {Points} Отсортированные точки маршрута
    */
   #getSortPoints(points) {
-    switch (this.#currentSortType) {
-      case SortTypes.DEFAULT:
-        return sortPointsByDate(points);
-      case SortTypes.TIME:
-        return sortPointsByDuration(points);
-      case SortTypes.PRICE:
-        return sortPointsByPrice(points);
-      case SortTypes.OFFERS:
-        return sortPointsByOffersLength(points);
-      default:
-        return points;
-    }
+    return SortFunctions[this.#currentSortType](points);
   }
 
   #renderLoading() {
@@ -184,7 +165,7 @@ export default class BoardPresenter {
   #renderSorts() {
     this.#sortsComponent = new PointsSortView({
       currentSortType: this.#currentSortType,
-      onSortTypeChange: this.#handleSortTypeChange
+      handleSortTypeChange: this.#handleSortTypeChange
     });
 
     render(this.#sortsComponent, this.#pointsConstainer, RenderPosition.AFTERBEGIN);
@@ -193,16 +174,16 @@ export default class BoardPresenter {
   /**
    * Рендерит компоненты для блока событий
    */
-  #renderPointsBoard() {
+  #renderPointsBoard(points) {
     this.#renderSorts();
 
-    this.points.forEach((point) => {
+    points.forEach((point) => {
       const pointPresenter = new PointPresenter({
         pointsListContainer: this.#pointsListComponent.element,
         destinationsModel: this.#destinationsModel,
         offersModel: this.#offersModel,
-        onDataChanged: this.#handleViewAction,
-        onModeChange: this.#handleModeChange
+        handleDataChanged: this.#handleViewAction,
+        handleModeChange: this.#handleModeChange
       });
 
       pointPresenter.init(point);

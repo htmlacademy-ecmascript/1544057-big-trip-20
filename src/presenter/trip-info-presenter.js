@@ -1,12 +1,12 @@
 //@ts-check
-import { remove, render, RenderPosition } from '../framework/render.js';
+import { remove, render, RenderPosition } from '../framework/render';
 import TripInfoView from '../view/trip-info-view';
 
 /**
- * @typedef {import('../model/destinations-model.js').default} DestinationsModel
- * @typedef {import('../model/offers-model.js').default} OffersModel
- * @typedef {import('../model/points-model.js').Point} Point
- * @typedef {import('../model/points-model.js').default} PointsModel
+ * @typedef {import('../model/destinations-model').default} DestinationsModel
+ * @typedef {import('../model/offers-model').default} OffersModel
+ * @typedef {import('../model/points-model').Point} Point
+ * @typedef {import('../model/points-model').default} PointsModel
  */
 
 export default class TripInfoPresenter {

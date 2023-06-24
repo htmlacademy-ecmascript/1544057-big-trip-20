@@ -2,9 +2,9 @@
 import AppApiService from './app-api-service';
 import { AUTHORIZATION, Urls } from './constants';
 import DestinationsModel from './model/destinations-model';
-import FilterModel from './model/filter-model.js';
+import FilterModel from './model/filter-model';
 import OffersModel from './model/offers-model';
-import PointsModel from './model/points-model.js';
+import PointsModel from './model/points-model';
 import BoardPresenter from './presenter/board-presenter';
 
 const appApiService = new AppApiService(Urls.APP_API, AUTHORIZATION);

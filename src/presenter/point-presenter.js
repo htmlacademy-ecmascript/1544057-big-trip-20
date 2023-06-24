@@ -1,14 +1,14 @@
-import { UpdateType, UserAction } from '../constants.js';
-import { remove, render, replace } from '../framework/render.js';
-import { checkEscKeydownPress } from '../utils/points.js';
-import PointFormView from '../view/point/point-form-view.js';
-import PointInfoView from '../view/point/point-info-view.js';
+import { UpdateType, UserAction } from '../constants';
+import { remove, render, replace } from '../framework/render';
+import { checkEscKeydownPress } from '../utils/points';
+import PointFormView from '../view/point/point-form-view';
+import PointInfoView from '../view/point/point-info-view';
 
 /** Пересентер события */
-/**@typedef {import('./page-presenter.js').Point}  Point*/
-/**@typedef {import('../model/offers-model.js').Offer} Offer */
-/**@typedef {import('../model/destinations-model.js').default}  DestinationsModel*/
-/**@typedef {import('../model/offers-model.js').default}  OffersModel*/
+/**@typedef {import('./page-presenter').Point}  Point*/
+/**@typedef {import('../model/offers-model').Offer} Offer */
+/**@typedef {import('../model/destinations-model').default}  DestinationsModel*/
+/**@typedef {import('../model/offers-model').default}  OffersModel*/
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -17,27 +17,33 @@ const Mode = {
 
 export default class PointPresenter {
   #pointsListContainer;
+
   #offersModel;
   #destinationsModel;
   /**@type{PointInfoView}*/
+
   #pointInfoComponent;
   /**@type{PointFormView}*/
   #pointFormComponent;
+
   #handleDataChange;
   #handleModeChange;
+
   /**@type{Point} */
   #point;
   #mode = Mode.DEFAULT;
 
   /**
-   * @param {{pointsListContainer: HTMLElement, destinationsModel: DestinationsModel, offersModel: OffersModel, onDataChanged: function, onModeChange: function}} params
+   * @param {{pointsListContainer: HTMLElement, destinationsModel: DestinationsModel, offersModel: OffersModel, handleDataChanged: function, handleModeChange: function}} params
    */
-  constructor({ pointsListContainer, destinationsModel, offersModel, onDataChanged, onModeChange }) {
+  constructor({ pointsListContainer, destinationsModel, offersModel, handleDataChanged, handleModeChange }) {
     this.#pointsListContainer = pointsListContainer;
+
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
-    this.#handleDataChange = onDataChanged;
-    this.#handleModeChange = onModeChange;
+
+    this.#handleDataChange = handleDataChanged;
+    this.#handleModeChange = handleModeChange;
   }
 
   /**
@@ -52,20 +58,20 @@ export default class PointPresenter {
       point: this.#point,
       destinations: this.#destinationsModel.destinations,
       offersByType: this.#offersModel.offers,
-      onEditButtonClick: () => {
+      handleEditButtonClick: () => {
         this.#replacePointToForm();
         document.addEventListener('keydown', this.#ecsKeydownHandler);
       },
-      onFavoriteClick: () => this.#handleFavoriteClick()
+      handleFavoriteClick: () => this.#handleFavoriteClick()
     });
 
     this.#pointFormComponent = new PointFormView({
       point: this.#point,
       destinations: this.#destinationsModel.destinations,
       offersByTypes: this.#offersModel.offers,
-      onCancelClick: this.resetView,
-      onSubmitClick: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick
+      handleCancelClick: this.resetView,
+      handleSubmitClick: this.#handleFormSubmit,
+      handleDeleteClick: this.#handleDeleteClick
     });
 
     if (!prevInfoComponent || !prevFormComponent) {
@@ -158,16 +164,6 @@ export default class PointPresenter {
   };
 
   /**
-   * Обработчик нажатия ESCAPE
-   * @param {KeyboardPoint} point
-   */
-  #ecsKeydownHandler = (event) => {
-    checkEscKeydownPress(event, () => {
-      this.resetView();
-    });
-  };
-
-  /**
    * Обработчик клика по кнопке добавить в избранное
    */
   #handleFavoriteClick = () => {
@@ -179,7 +175,6 @@ export default class PointPresenter {
   };
 
   /**
-   * Обработчик сохранения данных формы
    * @param {Point} point
    */
   #handleFormSubmit = (point) => {
@@ -196,4 +191,13 @@ export default class PointPresenter {
       { ...point });
   };
 
+  /**
+  * Обработчик нажатия ESCAPE
+  * @param {KeyboardPoint} point
+  */
+  #ecsKeydownHandler = (evt) => {
+    checkEscKeydownPress(evt, () => {
+      this.resetView();
+    });
+  };
 }

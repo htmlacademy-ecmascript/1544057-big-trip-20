@@ -1,5 +1,14 @@
-import Observable from '../framework/observable.js';
+import Observable from '../framework/observable';
 
+/**
+ * @typedef Offer
+ * @type {Object}
+ * @property {string} id
+ * @property {string} title
+ * @property {number} price
+ */
+
+/**@typedef {Map<string, Map<string, Offer>>} OffersByType*/
 export default class OffersModel extends Observable {
   #appApiService;
   #offersByType = new Map();

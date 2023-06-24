@@ -4,7 +4,7 @@ import AbstractView from '../../framework/view/abstract-view';
 import { calculateDuration, humanizeDate } from '../../utils/points';
 
 /**
- * @typedef {import('../../presenter/page-presenter').Point} Point
+ * @typedef {import('../../presenter/board-presenter').Point} Point
  * @typedef {import('../../model/offers-model').OffersByType} OffersByType
  * @typedef {import('../../model/destinations-model').Destinations} Destinations
  * /
@@ -70,19 +70,20 @@ export default class PointInfoView extends AbstractView {
   #point;
   #destinations;
   #offersByType;
-  #handlerEditClick;
+
+  #handleEditClick;
   #handleFavoriteClick;
 
   /**
-   * @param {{point: Point, destinations: Destinations, offersByType: OffersByType,  onEditButtonClick: function, onFavoriteClick: function}} params
+   * @param {{point: Point, destinations: Destinations, offersByType: OffersByType,  handleEditButtonClick: function, handleFavoriteClick: function}} params
    */
-  constructor({ point, destinations, offersByType, onEditButtonClick, onFavoriteClick }) {
+  constructor({ point, destinations, offersByType, handleEditButtonClick, handleFavoriteClick }) {
     super();
     this.#point = point;
     this.#destinations = destinations;
     this.#offersByType = offersByType;
-    this.#handlerEditClick = onEditButtonClick;
-    this.#handleFavoriteClick = onFavoriteClick;
+    this.#handleEditClick = handleEditButtonClick;
+    this.#handleFavoriteClick = handleFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.element.querySelector('.event__favorite-btn ').addEventListener('click', this.#favoriteClickHandler);
@@ -110,18 +111,18 @@ export default class PointInfoView extends AbstractView {
   }
 
   /**
- * @param {Event} event
+ * @param {Event} evt
  */
-  #editClickHandler = (event) => {
-    event.preventDefault();
-    this.#handlerEditClick();
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
   };
 
   /**
- * @param {Event} event
+ * @param {Event} evt
  */
-  #favoriteClickHandler = (event) => {
-    event.preventDefault();
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
     this.#handleFavoriteClick();
   };
 }
