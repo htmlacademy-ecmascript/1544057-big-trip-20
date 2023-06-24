@@ -25,8 +25,8 @@ export default class NewPointPresenter {
     this.#newPointComponent = new PointFormView({
       destinations: destinationsModel.destinations,
       offersByTypes: offersModel.offers,
-      onSubmitClick: this.#handleFormSubmit,
-      onDeleteClick: this.#handleCanselClick
+      handleSubmitClick: this.#handleFormSubmit,
+      handleDeleteClick: this.#handleCanselClick
     });
 
     render(this.#newPointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);

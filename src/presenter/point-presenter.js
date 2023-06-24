@@ -58,20 +58,20 @@ export default class PointPresenter {
       point: this.#point,
       destinations: this.#destinationsModel.destinations,
       offersByType: this.#offersModel.offers,
-      onEditButtonClick: () => {
+      handleEditButtonClick: () => {
         this.#replacePointToForm();
         document.addEventListener('keydown', this.#ecsKeydownHandler);
       },
-      onFavoriteClick: () => this.#handleFavoriteClick()
+      handleFavoriteClick: () => this.#handleFavoriteClick()
     });
 
     this.#pointFormComponent = new PointFormView({
       point: this.#point,
       destinations: this.#destinationsModel.destinations,
       offersByTypes: this.#offersModel.offers,
-      onCancelClick: this.resetView,
-      onSubmitClick: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick
+      handleCancelClick: this.resetView,
+      handleSubmitClick: this.#handleFormSubmit,
+      handleDeleteClick: this.#handleDeleteClick
     });
 
     if (!prevInfoComponent || !prevFormComponent) {

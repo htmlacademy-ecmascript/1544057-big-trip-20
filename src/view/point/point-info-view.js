@@ -75,15 +75,15 @@ export default class PointInfoView extends AbstractView {
   #handleFavoriteClick;
 
   /**
-   * @param {{point: Point, destinations: Destinations, offersByType: OffersByType,  onEditButtonClick: function, onFavoriteClick: function}} params
+   * @param {{point: Point, destinations: Destinations, offersByType: OffersByType,  handleEditButtonClick: function, handleFavoriteClick: function}} params
    */
-  constructor({ point, destinations, offersByType, onEditButtonClick, onFavoriteClick }) {
+  constructor({ point, destinations, offersByType, handleEditButtonClick, handleFavoriteClick }) {
     super();
     this.#point = point;
     this.#destinations = destinations;
     this.#offersByType = offersByType;
-    this.#handleEditClick = onEditButtonClick;
-    this.#handleFavoriteClick = onFavoriteClick;
+    this.#handleEditClick = handleEditButtonClick;
+    this.#handleFavoriteClick = handleFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.element.querySelector('.event__favorite-btn ').addEventListener('click', this.#favoriteClickHandler);

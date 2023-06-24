@@ -307,18 +307,18 @@ export default class PointFormView extends AbstractStatefulView {
 
   /**
    * Конструктор компонента формы события
-   * @param {{ point: Point | BLANK_POINT, destinations: Destinations, offersByTypes: OffersByType, onDeleteClick: function, onCancelClick: function, onSubmitClick: function}} params
+   * @param {{ point: Point | BLANK_POINT, destinations: Destinations, offersByTypes: OffersByType, handleDeleteClick: function, handleCancelClick: function, handleSubmitClick: function}} params
       */
-  constructor({ point = BLANK_POINT, destinations, offersByTypes, onCancelClick, onDeleteClick, onSubmitClick }) {
+  constructor({ point = BLANK_POINT, destinations, offersByTypes, handleCancelClick, handleDeleteClick, handleSubmitClick }) {
     super();
     this.#destinations = destinations;
     this.#offersByTypes = offersByTypes;
 
     this._setState(PointFormView.parsePointToState(point, this.#offersByTypes, this.#destinations));
 
-    this.#handleCancelClick = onCancelClick;
-    this.#handleSubmitClick = onSubmitClick;
-    this.#handleDeleteClick = onDeleteClick;
+    this.#handleCancelClick = handleCancelClick;
+    this.#handleSubmitClick = handleSubmitClick;
+    this.#handleDeleteClick = handleDeleteClick;
 
 
     this.#destinationsByCities = new Map();
