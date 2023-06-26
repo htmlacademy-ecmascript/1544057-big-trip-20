@@ -15,10 +15,10 @@ import { calculateDuration, humanizeDate } from '../../utils/points';
  * @returns {string} Element
  */
 const createOffer = ({ title, price }) => `<li class="event__offer">
-      <span class="event__offer-title">${title}</span>
-      &plus;&euro;&nbsp;
-      <span class="event__offer-price">${price}</span>
-    </li>`;
+                                              <span class="event__offer-title">${title}</span>
+                                              &plus;&euro;&nbsp;
+                                              <span class="event__offer-price">${price}</span>
+                                            </li>`;
 
 /**
  * Создает шаблон всех выбранных предложений
@@ -32,7 +32,8 @@ const renderOffers = (offers) => offers.map((offer) => createOffer(offer)).join(
  * @param {Point} params
  * @returns
  */
-const createPointInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, basePrice, isFavorite }) => `
+function createPointInfoTemplate({ offers, destination, type, dateFrom, dateTo, basePrice, isFavorite }) {
+  return `
 <li class="trip-events__item">
   <div class="event">
   <time class="event__date" datetime = "${dateFrom}" > ${humanizeDate(dateFrom, RENDER_DATE_FORMAT)}</time >
@@ -65,6 +66,7 @@ const createPointInfoTemplate = ({ offers, destination, type, dateFrom, dateTo, 
 </div >
 </li>
 `;
+}
 
 export default class PointInfoView extends AbstractView {
   #point;

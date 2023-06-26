@@ -8,10 +8,9 @@ const Texts = {
   [FilterTypes.FUTURE]: 'There are no future points now'
 };
 
-const createPointsEmplyTemplate = (selectFilter) => `
-<p class="trip-events__msg">
-  ${Texts[selectFilter]}
-</p>`;
+const createPointsEmplyTemplate = (selectFilter) => `<p class="trip-events__msg">
+                                                        ${Texts[selectFilter]}
+                                                      </p>`;
 
 export default class PointsEmptyView extends AbstractView {
   #selectFilter = null;
