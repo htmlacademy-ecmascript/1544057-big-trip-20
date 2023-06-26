@@ -450,7 +450,15 @@ export default class PointFormView extends AbstractStatefulView {
       },
 
       [FieldClasses.PRICE]: (target) => {
-        const basePrice = Number(target.value);
+        const MAX_PRICE = 100000;
+
+        let basePrice = Number(target.value);
+
+        if (basePrice > MAX_PRICE) {
+          target.value = MAX_PRICE;
+          basePrice = MAX_PRICE;
+        }
+
         if (basePrice) {
           target.value = basePrice;
           this._setState({ ...this._state, basePrice });
