@@ -2,8 +2,7 @@ import { RENDER_DATE_FORMAT } from '../constants';
 import AbstractView from '../framework/view/abstract-view';
 import { humanizeDate } from '../utils/points';
 
-//Amsterdam & mdash; Chamonix & mdash; Geneva;
-const renderCities = (cities) => {
+function renderCities(cities) {
   const uniqCities = [...new Set(cities)];
 
   const firstCity = uniqCities.at();
@@ -15,7 +14,6 @@ const renderCities = (cities) => {
     TWO: 2,
     THREE: 3,
   };
-
 
   let result;
   switch (uniqCities.length) {
@@ -32,9 +30,9 @@ const renderCities = (cities) => {
       result = `${firstCity} &mdash;...&mdash; ${lastCity} `;
   }
   return result;
-};
+}
 
-const renderTripDate = (dates) => {
+function renderTripDate(dates) {
   const firstDate = humanizeDate(dates.at(), RENDER_DATE_FORMAT);
   const lastDate = humanizeDate(dates.at(-1), RENDER_DATE_FORMAT);
 
@@ -52,19 +50,19 @@ const renderTripDate = (dates) => {
   }
 
   return result;
-};
+}
 
 const createTripInfoTemplate = ({ dates, cities, tripCost }) => `<section class="trip-main__trip-info  trip-info">
-            <div class="trip-info__main">
-              <h1 class="trip-info__title">${renderCities(cities)}</h1>
+                                                                    <div class="trip-info__main">
+                                                                      <h1 class="trip-info__title">${renderCities(cities)}</h1>
 
-              <p class="trip-info__dates">${renderTripDate(dates)}</p>
-            </div>
+                                                                      <p class="trip-info__dates">${renderTripDate(dates)}</p>
+                                                                    </div>
 
-            <p class="trip-info__cost">
-              Total: &euro;&nbsp;<span class="trip-info__cost-value">${tripCost}</span>
-            </p>
-          </section>`;
+                                                                    <p class="trip-info__cost">
+                                                                      Total: &euro;&nbsp;<span class="trip-info__cost-value">${tripCost}</span>
+                                                                    </p>
+                                                                  </section>`;
 
 export default class TripInfoView extends AbstractView {
   #pointsDates = null;

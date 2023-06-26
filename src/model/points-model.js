@@ -93,7 +93,7 @@ export default class PointsModel extends Observable {
       const response = await this.#appApiService.updatePoint(update);
       const updatedPoint = this.#adaptToClient(response);
 
-      this.#points = this.#points.set(updatedPoint.id, updatedPoint);
+      this.#points.set(updatedPoint.id, updatedPoint);
       this._notify(updateType, updatedPoint);
     } catch (err) {
       throw new Error('Can\'t update point');
@@ -113,8 +113,8 @@ export default class PointsModel extends Observable {
       const response = await this.#appApiService.addPoint(update);
       const updatedPoint = this.#adaptToClient(response);
 
-      this.#points.set(update.id, updatedPoint);
-      this._notify(updateType, update);
+      this.#points.set(updatedPoint.id, updatedPoint);
+      this._notify(updateType, updatedPoint);
     } catch (error) {
       throw new Error('Can\'t add point');
     }
@@ -134,7 +134,7 @@ export default class PointsModel extends Observable {
       await this.#appApiService.deletePoint(update);
       this.#points.delete(update.id);
 
-      this._notify(updateType, update);
+      this._notify(updateType);
     } catch (error) {
       throw new Error('Can\'t delete point');
     }

@@ -7,18 +7,17 @@ import AbstractView from '../framework/view/abstract-stateful-view';
  * @param {Boolean} disabled параметр отключеиня фильтра
  * @returns
  */
-const createFilter = ({ filterName, checked = false, disabled = false }) => `
-<div class="trip-filters__filter">
-  <input id="filter-${filterName.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filterName.toLowerCase()}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
-  <label class="trip-filters__filter-label" for="filter-${filterName.toLowerCase()}">${filterName}</label>
-</div>`;
+const createFilter = ({ filterName, checked = false, disabled = false }) => `<div class="trip-filters__filter">
+                                                                                <input id="filter-${filterName.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filterName.toLowerCase()}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
+                                                                                <label class="trip-filters__filter-label" for="filter-${filterName.toLowerCase()}">${filterName}</label>
+                                                                              </div>`;
 
 /**
  *
  * @param {object} filters
  * @returns {HTMLElement}
  */
-const createFilters = (filters, currentFilterType) => {
+function createFilters(filters, currentFilterType) {
   const filtersTemplate = filters.map(({ filterName, disabled }) => {
 
     if (filterName === currentFilterType) {
@@ -30,13 +29,12 @@ const createFilters = (filters, currentFilterType) => {
 
   return filtersTemplate.join('\n');
 
-};
+}
 
-const createPointsFilterTemplate = (filters, currentFilterType) => `
-<form class="trip-filters" action="#" method="get">
-    ${createFilters(filters, currentFilterType)}
-    <button class="visually-hidden" type="submit">Accept filter</button>
-</form>`;
+const createPointsFilterTemplate = (filters, currentFilterType) => `<form class="trip-filters" action="#" method="get">
+                                                                        ${createFilters(filters, currentFilterType)}
+                                                                        <button class="visually-hidden" type="submit">Accept filter</button>
+                                                                    </form>`;
 
 export default class FilterView extends AbstractView {
   #filters;

@@ -58,18 +58,14 @@ const BLANK_POINT = {
  * @returns {string} Возвращает шаблон кнопок под вид формы
  */
 function createButton(isEditForm, isDisabled, isSaving, isDeleting) {
-  const createEditButtonTemplate = () => `
-  <button class="event__save-btn  btn  btn--blue" type="submit" disabled>${isSaving ? 'Saving...' : 'Save'}</button>
-  <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ' '}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
-  <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ' '}>
-  <span class="visually-hidden">Open event</span>
-  </button>
-`;
+  const createEditButtonTemplate = () => `<button class="event__save-btn  btn  btn--blue" type="submit" disabled>${isSaving ? 'Saving...' : 'Save'}</button>
+                                          <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ' '}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
+                                          <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ' '}>
+                                            <span class="visually-hidden">Open event</span>
+                                          </button>`;
 
-  const createAddButtonTemplate = () => `
-  <button class="event__save-btn  btn  btn--blue" type="submit" disabled>${isSaving ? 'Saving...' : 'Save'}</button>
-  <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ' '}>Cancel</button>
-`;
+  const createAddButtonTemplate = () => `<button class="event__save-btn  btn  btn--blue" type="submit" disabled>${isSaving ? 'Saving...' : 'Save'}</button>
+                                         <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ' '}>Cancel</button>`;
 
   return isEditForm ? createEditButtonTemplate() : createAddButtonTemplate();
 }
@@ -86,20 +82,24 @@ function createOffersSection(offersByTypes, isDisabled) {
  * @returns {string}
  */
   const createOffer = (offer, checked = false) => `<div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" ${checked ? 'checked' : ''} ${isDisabled ? 'disabled' : ' '}>
-  <label class="event__offer-label" for="${offer.id}">
-    <span class="event__offer-title">${offer.title}</span>
-    &plus;&euro;&nbsp;
-    <span class="event__offer-price">${offer.price}</span>
-  </label>
-</div>`;
+                                                      <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" ${checked ? 'checked' : ''} ${isDisabled ? 'disabled' : ' '}>
+                                                      <label class="event__offer-label" for="${offer.id}">
+                                                        <span class="event__offer-title">${offer.title}</span>
+                                                        &plus;&euro;&nbsp;
+                                                        <span class="event__offer-price">${offer.price}</span>
+                                                      </label>
+                                                    </div>`;
 
-  const getOffersTemplate = () => Array.from(offersByTypes.values()).map((offer) => {
-    if (offer.selected) {
-      return createOffer(offer, true);
-    }
-    return createOffer(offer);
-  }).join('\n');
+  function getOffersTemplate() {
+    const offersTemplate = Array.from(offersByTypes.values()).map((offer) => {
+      if (offer.selected) {
+        return createOffer(offer, true);
+      }
+      return createOffer(offer);
+    }).join('\n');
+
+    return offersTemplate;
+  }
 
   return offersByTypes ? `<section class="event__section  event__section--offers">
                               <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -151,11 +151,11 @@ function createDestinationSection(destination) {
  */
   const createPhoto = (photoSrc, description) => `<img class="event__photo" src = "${photoSrc}" alt = "${description}" > `;
 
-  const createPhotos = () => {
+  function createPhotos() {
     const photos = destination.pictures.map((photo) => createPhoto(photo.src, photo.description));
 
     return photos.join('\n');
-  };
+  }
 
   const getdestinationsTemplate = () => `<section class="event__section  event__section--destination" >
                                             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -232,7 +232,7 @@ function createPointTypes(selectType, types, isDisabled) {
  * @param { Object } info object
  * @returns {string} Point template
  */
-const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dateFrom, dateTo, basePrice, destination, destinations, isDisabled, isSaving, isDeleting }) => {
+function createPointFormTemplate({ isEditForm, offers, type, availableTypes, dateFrom, dateTo, basePrice, destination, destinations, isDisabled, isSaving, isDeleting }) {
   const pointTypesTemplate = createPointTypes(type, availableTypes, isDisabled);
   const destinationsSelectTemplate = createDestinationsSelect(type, destination, destinations, isDisabled);
   const buttonsTemplate = createButton(isEditForm, isDisabled, isSaving, isDeleting);
@@ -253,7 +253,7 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
                   <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" required ${isDisabled ? 'disabled' : ' '}>
 
                   &mdash;
-                  
+
                   <label class="visually-hidden" for="event-end-time-1">To</label>
                   <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" required ${isDisabled ? 'disabled' : ' '}>
                 </div>
@@ -275,7 +275,7 @@ const createPointFormTemplate = ({ isEditForm, offers, type, availableTypes, dat
               </section>
             </form>
           </li>`;
-};
+}
 
 
 /**
